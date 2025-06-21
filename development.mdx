@@ -1,107 +1,468 @@
 ---
-title: 'Development'
-description: 'Preview changes locally to update your docs'
+title: Development Setup
+description: Set up your local development environment for PAME.AI
 ---
 
 <Info>
-  **Prerequisite**: Please install Node.js (version 19 or higher) before proceeding. <br />
-  Please upgrade to ```docs.json``` before proceeding and delete the legacy ```mint.json``` file.
+  This guide covers setting up PAME.AI core platform for local development. If you just want to build apps on PAME.AI, see the [Quickstart Guide](/quickstart).
 </Info>
 
-Follow these steps to install and run Mintlify on your operating system:
+## Prerequisites
 
-**Step 1**: Install Mintlify:
+Before you begin, ensure you have:
+
+<Steps>
+  <Step title="System Requirements">
+    - **OS**: macOS, Linux, or Windows with WSL2
+    - **RAM**: 8GB minimum, 16GB recommended
+    - **Storage**: 10GB free space
+  </Step>
+  
+  <Step title="Required Software">
+    - [Node.js](https://nodejs.org/) 18+ and npm 8+
+    - [Git](https://git-scm.com/) 2.34+
+    - [Docker](https://docker.com/) 20.10+
+    - [Google Cloud SDK](https://cloud.google.com/sdk)
+    - [Terraform](https://terraform.io/) 1.5+
+  </Step>
+  
+  <Step title="Accounts">
+    - GitHub account
+    - Google Cloud Platform account
+    - Mintlify account (for documentation)
+    - NPM account (for package publishing)
+  </Step>
+</Steps>
+
+## 🚀 Quick Setup
+
+Run our setup script for the fastest setup:
+
+```bash
+git clone https://github.com/ai-factory-llc/pame-ai.git
+cd pame-ai
+./scripts/setup.sh
+```
+
+This script will:
+- Check prerequisites
+- Install dependencies
+- Set up databases
+- Configure environment
+- Run initial tests
+
+## 📋 Manual Setup
+
+### Step 1: Clone the Repository
+
+```bash
+git clone https://github.com/ai-factory-llc/pame-ai.git
+cd pame-ai
+git checkout develop
+```
+
+### Step 2: Install Dependencies
+
+```bash
+npm install
+```
+
+### Step 3: Environment Configuration
+
+Copy the example environment file:
+
+```bash
+cp env.example .env
+```
+
+Configure your `.env` file:
+
+```env .env
+# Core Configuration
+NODE_ENV=development
+PORT=3000
+API_URL=http://localhost:3000
+
+# Database Configuration
+DATABASE_URL=postgresql://pameai:password@localhost:5432/pame_ai_dev
+REDIS_URL=redis://localhost:6379
+
+# Authentication
+JWT_SECRET=your-super-secret-jwt-key-change-this
+SESSION_SECRET=your-session-secret-change-this
+
+# Mintlify Documentation
+MINTLIFY_PROJECT_ID=your-project-id
+MINTLIFY_ADMIN_API_KEY=your-admin-key
+MINTLIFY_ASSISTANT_API_KEY=your-assistant-key
+
+# NPM Registry
+NPM_PACKAGE_API_TOKEN=your-npm-token
+
+# Google Cloud Platform
+GCP_PROJECT_ID=your-gcp-project
+GCP_REGION=us-central1
+GCP_SERVICE_ACCOUNT_KEY=path/to/service-account.json
+
+# Stripe Payments
+STRIPE_SECRET_KEY=sk_test_your_key
+STRIPE_PUBLIC_KEY=pk_test_your_key
+STRIPE_WEBHOOK_SECRET=whsec_your_secret
+
+# Monitoring
+SENTRY_DSN=your-sentry-dsn
+LOG_LEVEL=debug
+```
+
+### Step 4: Database Setup
+
+<Tabs>
+  <Tab title="Docker (Recommended)">
+    ```bash
+    # Start PostgreSQL and Redis
+    docker-compose up -d postgres redis
+    
+    # Run migrations
+    npm run db:migrate
+    
+    # Seed development data
+    npm run db:seed
+    ```
+  </Tab>
+  
+  <Tab title="Local Installation">
+    ```bash
+    # Install PostgreSQL
+    brew install postgresql@15
+    brew services start postgresql@15
+    
+    # Install Redis
+    brew install redis
+    brew services start redis
+    
+    # Create database
+    createdb pame_ai_dev
+    
+    # Run migrations
+    npm run db:migrate
+    
+    # Seed data
+    npm run db:seed
+    ```
+  </Tab>
+</Tabs>
+
+### Step 5: Start Development Services
 
 <CodeGroup>
 
-  ```bash npm
-  npm i -g mintlify
-  ```
+```bash Terminal 1 - API Server
+npm run dev:api
+# API running at http://localhost:3000
+```
 
-```bash yarn
-yarn global add mintlify
+```bash Terminal 2 - UI Development
+npm run dev:ui
+# UI running at http://localhost:3001
+```
+
+```bash Terminal 3 - Documentation
+npm run docs:dev
+# Docs at http://localhost:3002
 ```
 
 </CodeGroup>
 
-**Step 2**: Navigate to the docs directory (where the `docs.json` file is located) and execute the following command:
+## 🏗️ Project Structure
+
+```
+pame.ai/
+├── api/                    # REST/GraphQL API
+│   ├── controllers/        # Request handlers
+│   ├── models/            # Data models
+│   ├── routes/            # API routes
+│   └── middleware/        # Express middleware
+├── core/                  # Core platform components
+│   ├── privacy-control/   # Permission management
+│   ├── shared-memory/     # User context storage
+│   ├── app-marketplace/   # App store functionality
+│   ├── developer-platform/# Developer tools & SDK
+│   └── payments/          # Payment processing
+├── ui/                    # Frontend applications
+│   ├── dashboard/         # User dashboard
+│   ├── marketplace/       # App marketplace UI
+│   └── developer-portal/  # Developer dashboard
+├── database/              # Database schemas & migrations
+├── terraform/             # Infrastructure as code
+├── __tests__/            # Test suites
+└── docs/                 # Documentation
+```
+
+## 🧪 Testing
+
+### Run All Tests
 
 ```bash
-mintlify dev
+npm test
 ```
 
-A local preview of your documentation will be available at `http://localhost:3000`.
-
-### Custom Ports
-
-By default, Mintlify uses port 3000. You can customize the port Mintlify runs on by using the `--port` flag. To run Mintlify on port 3333, for instance, use this command:
-
-```bash
-mintlify dev --port 3333
-```
-
-If you attempt to run Mintlify on a port that's already in use, it will use the next available port:
-
-```md
-Port 3000 is already in use. Trying 3001 instead.
-```
-
-## Mintlify Versions
-
-Please note that each CLI release is associated with a specific version of Mintlify. If your local website doesn't align with the production version, please update the CLI:
+### Run Specific Test Suites
 
 <CodeGroup>
 
-```bash npm
-npm i -g mintlify@latest
+```bash Unit Tests
+npm run test:unit
 ```
 
-```bash yarn
-yarn global upgrade mintlify
+```bash Integration Tests
+npm run test:integration
+```
+
+```bash E2E Tests
+npm run test:e2e
+```
+
+```bash Coverage Report
+npm run test:coverage
 ```
 
 </CodeGroup>
 
-## Validating Links
+### Testing Best Practices
 
-The CLI can assist with validating reference links made in your documentation. To identify any broken links, use the following command:
+1. **Write tests first** (TDD approach)
+2. **Mock external services** in unit tests
+3. **Use realistic data** in integration tests
+4. **Test error scenarios** not just happy paths
+5. **Maintain 80%+ coverage**
+
+## 🔧 Development Tools
+
+### Code Quality
 
 ```bash
-mintlify broken-links
+# Lint your code
+npm run lint
+
+# Auto-fix linting issues
+npm run lint:fix
+
+# Format with Prettier
+npm run format
+
+# Run quality checks
+npm run quality:check
 ```
 
-## Deployment
+### Git Hooks
 
-<Tip>
-  Unlimited editors available under the [Pro
-  Plan](https://mintlify.com/pricing) and above.
-</Tip>
+We use Husky for Git hooks:
 
-If the deployment is successful, you should see the following:
+- **pre-commit**: Runs linting and formatting
+- **pre-push**: Runs tests
+- **commit-msg**: Validates commit message format
 
-<Frame>
-  <img src="/images/checks-passed.png" style={{ borderRadius: '0.5rem' }} />
-</Frame>
+### Commit Message Format
 
-## Code Formatting
+Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
-We suggest using extensions on your IDE to recognize and format MDX. If you're a VSCode user, consider the [MDX VSCode extension](https://marketplace.visualstudio.com/items?itemName=unifiedjs.vscode-mdx) for syntax highlighting, and [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) for code formatting.
+```
+type(scope): subject
 
-## Troubleshooting
+body
+
+footer
+```
+
+Examples:
+```
+feat(auth): add OAuth2 support
+fix(memory): resolve data persistence issue
+docs(api): update authentication examples
+chore(deps): upgrade to React 18
+```
+
+## 🌐 Local Infrastructure
+
+### Start Local Services
+
+```bash
+# Start all services with Docker Compose
+docker-compose up -d
+
+# Check service health
+docker-compose ps
+
+# View logs
+docker-compose logs -f [service-name]
+
+# Stop services
+docker-compose down
+```
+
+### Service URLs
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| API | http://localhost:3000 | Main API server |
+| UI | http://localhost:3001 | User interface |
+| Docs | http://localhost:3002 | Documentation |
+| PostgreSQL | localhost:5432 | Database |
+| Redis | localhost:6379 | Cache & queues |
+| Mailhog | http://localhost:8025 | Email testing |
+
+## 🐛 Debugging
+
+### VS Code Configuration
+
+`.vscode/launch.json`:
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug API",
+      "program": "${workspaceFolder}/api/server.js",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Tests",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": ["--runInBand"],
+      "console": "integratedTerminal"
+    }
+  ]
+}
+```
+
+### Common Issues
 
 <AccordionGroup>
-  <Accordion title='Error: Could not load the "sharp" module using the darwin-arm64 runtime'>
-
-    This may be due to an outdated version of node. Try the following:
-    1. Remove the currently-installed version of mintlify: `npm remove -g mintlify`
-    2. Upgrade to Node v19 or higher.
-    3. Reinstall mintlify: `npm install -g mintlify`
+  <Accordion title="Port already in use">
+    ```bash
+    # Find process using port
+    lsof -i :3000
+    
+    # Kill process
+    kill -9 [PID]
+    ```
   </Accordion>
-
-  <Accordion title="Issue: Encountering an unknown error">
   
-    Solution: Go to the root of your device and delete the \~/.mintlify folder. Afterwards, run `mintlify dev` again.
+  <Accordion title="Database connection failed">
+    ```bash
+    # Check PostgreSQL status
+    brew services list
+    
+    # Restart PostgreSQL
+    brew services restart postgresql@15
+    
+    # Check connection
+    psql -U postgres -h localhost
+    ```
+  </Accordion>
+  
+  <Accordion title="Redis connection error">
+    ```bash
+    # Check Redis status
+    redis-cli ping
+    
+    # Restart Redis
+    brew services restart redis
+    ```
+  </Accordion>
+  
+  <Accordion title="npm install fails">
+    ```bash
+    # Clear npm cache
+    npm cache clean --force
+    
+    # Delete node_modules
+    rm -rf node_modules package-lock.json
+    
+    # Reinstall
+    npm install
+    ```
   </Accordion>
 </AccordionGroup>
 
-Curious about what changed in the CLI version? [Check out the CLI changelog.](https://www.npmjs.com/package/mintlify?activeTab=versions)
+## 🚀 Deployment
+
+### Deploy to Staging
+
+```bash
+# Ensure on develop branch
+git checkout develop
+
+# Run tests
+npm test
+
+# Deploy
+npm run deploy:staging
+```
+
+### Deploy to Production
+
+```bash
+# Ensure on main branch
+git checkout main
+
+# Run full test suite
+npm run test:all
+
+# Build production assets
+npm run build
+
+# Deploy
+npm run deploy:production
+```
+
+## 📚 Resources
+
+<CardGroup cols={2}>
+  <Card
+    title="Architecture Guide"
+    icon="sitemap"
+    href="/architecture/overview"
+  >
+    Understand the system design
+  </Card>
+  <Card
+    title="API Documentation"
+    icon="book"
+    href="/api-reference/introduction"
+  >
+    Complete API reference
+  </Card>
+  <Card
+    title="Contributing Guide"
+    icon="code-branch"
+    href="https://github.com/ai-factory-llc/pame-ai/blob/main/CONTRIBUTING.md"
+  >
+    How to contribute
+  </Card>
+  <Card
+    title="Security Policy"
+    icon="shield"
+    href="/best-practices/security"
+  >
+    Security best practices
+  </Card>
+</CardGroup>
+
+## 💬 Getting Help
+
+- **Discord**: [Join our community](https://discord.gg/pame-ai)
+- **GitHub Issues**: [Report bugs](https://github.com/ai-factory-llc/pame-ai/issues)
+- **Forum**: [Ask questions](https://forum.pame.ai)
+- **Email**: [support@pame.ai](mailto:support@pame.ai)
+
+---
+
+<Note>
+  Remember to never commit sensitive data like API keys or passwords. Always use environment variables.
+</Note> 

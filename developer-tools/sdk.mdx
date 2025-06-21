@@ -1,0 +1,763 @@
+---
+title: PAME.AI SDK
+description: Complete guide to using the PAME.AI SDK in your applications
+---
+
+## Installation
+
+Install the SDK for your platform:
+
+<Tabs>
+  <Tab title="JavaScript/TypeScript">
+    ```bash npm
+    npm install @pame-ai/sdk
+    ```
+    
+    ```bash yarn
+    yarn add @pame-ai/sdk
+    ```
+    
+    ```bash pnpm
+    pnpm add @pame-ai/sdk
+    ```
+  </Tab>
+  
+  <Tab title="Python">
+    ```bash pip
+    pip install pame-ai
+    ```
+    
+    ```bash poetry
+    poetry add pame-ai
+    ```
+  </Tab>
+  
+  <Tab title="Go">
+    ```bash
+    go get github.com/pame-ai/go-sdk
+    ```
+  </Tab>
+</Tabs>
+
+## Quick Start
+
+<CodeGroup>
+
+```javascript JavaScript
+import { PameAI } from '@pame-ai/sdk';
+
+const pame = new PameAI({
+  appId: 'your_app_id',
+  appSecret: 'your_app_secret'
+});
+
+// Store user preference
+await pame.memory.store('preferences', {
+  theme: 'dark',
+  language: 'en'
+});
+```
+
+```python Python
+from pame_ai import PameAI
+
+pame = PameAI(
+    app_id='your_app_id',
+    app_secret='your_app_secret'
+)
+
+# Store user preference
+await pame.memory.store('preferences', {
+    'theme': 'dark',
+    'language': 'en'
+})
+```
+
+```go Go
+import "github.com/pame-ai/go-sdk"
+
+client := pameai.NewClient(
+    "your_app_id",
+    "your_app_secret",
+)
+
+// Store user preference
+err := client.Memory.Store("preferences", map[string]interface{}{
+    "theme": "dark",
+    "language": "en",
+})
+```
+
+</CodeGroup>
+
+## Core Concepts
+
+### Client Initialization
+
+```javascript
+const pame = new PameAI({
+  // Required
+  appId: 'your_app_id',
+  appSecret: 'your_app_secret',
+  
+  // Optional
+  apiUrl: 'https://api.pame.ai/v1',  // Default
+  timeout: 30000,                     // 30 seconds
+  retries: 3,                         // Retry failed requests
+  testMode: false,                    // Use test environment
+  
+  // OAuth settings
+  redirectUri: 'https://yourapp.com/callback',
+  scopes: ['memory.read', 'memory.write']
+});
+```
+
+### Error Handling
+
+```javascript
+try {
+  const data = await pame.memory.get('preferences');
+} catch (error) {
+  if (error.code === 'PERMISSION_DENIED') {
+    // Request permission from user
+    await pame.permissions.request(['memory.read']);
+  } else if (error.code === 'NOT_FOUND') {
+    // Handle missing data
+    console.log('No preferences found');
+  } else {
+    // Handle other errors
+    console.error('Error:', error.message);
+  }
+}
+```
+
+## Memory API
+
+### Store Memory
+
+```javascript
+// Store simple data
+await pame.memory.store('last_search', 'hotels in Paris');
+
+// Store complex objects
+await pame.memory.store('travel_preferences', {
+  seatPreference: 'window',
+  mealPreference: 'vegetarian',
+  airlines: ['United', 'Delta'],
+  companions: [
+    { name: 'Jane', age: 9, relationship: 'daughter' }
+  ]
+});
+
+// Store with metadata
+await pame.memory.store('notes', 
+  { content: 'Meeting notes...' },
+  { 
+    tags: ['work', 'important'],
+    expiresAt: '2024-12-31'
+  }
+);
+```
+
+### Retrieve Memory
+
+```javascript
+// Get single item
+const preferences = await pame.memory.get('travel_preferences');
+
+// Get multiple items
+const memories = await pame.memory.getMultiple([
+  'travel_preferences',
+  'last_search',
+  'notes'
+]);
+
+// Get with default value
+const theme = await pame.memory.get('theme', { default: 'light' });
+```
+
+### Update Memory
+
+```javascript
+// Update entire object
+await pame.memory.update('preferences', {
+  theme: 'dark',
+  language: 'es'
+});
+
+// Partial update
+await pame.memory.patch('preferences', {
+  theme: 'light'  // Only updates theme
+});
+
+// Conditional update
+await pame.memory.update('counter', 
+  (current) => current + 1,
+  { ifExists: true }
+);
+```
+
+### Delete Memory
+
+```javascript
+// Delete single item
+await pame.memory.delete('temporary_data');
+
+// Delete multiple items
+await pame.memory.deleteMultiple(['temp1', 'temp2', 'temp3']);
+
+// Delete by pattern
+await pame.memory.deleteByPattern('temp_*');
+
+// Delete with condition
+await pame.memory.delete('session', {
+  ifOlderThan: '7d'
+});
+```
+
+### Search Memory
+
+```javascript
+// Simple search
+const results = await pame.memory.search('vacation plans');
+
+// Advanced search
+const results = await pame.memory.search({
+  query: 'flight bookings',
+  filters: {
+    type: 'travel',
+    tags: ['business'],
+    dateRange: {
+      start: '2024-01-01',
+      end: '2024-12-31'
+    }
+  },
+  sort: 'relevance',
+  limit: 10,
+  offset: 0
+});
+
+// Semantic search
+const similar = await pame.memory.findSimilar('preferences', {
+  threshold: 0.8,
+  limit: 5
+});
+```
+
+## Permissions API
+
+### Request Permissions
+
+```javascript
+// Request single permission
+const granted = await pame.permissions.request('calendar.read');
+
+// Request multiple permissions
+const granted = await pame.permissions.request([
+  'calendar.read',
+  'files.read',
+  'location.access'
+]);
+
+// Request with reason
+const granted = await pame.permissions.request({
+  permissions: ['contacts.read'],
+  reason: 'To suggest meeting participants',
+  optional: ['calendar.write']  // Nice to have
+});
+```
+
+### Check Permissions
+
+```javascript
+// Check single permission
+const hasAccess = await pame.permissions.check('memory.write');
+
+// Check multiple permissions
+const permissions = await pame.permissions.checkMultiple([
+  'memory.read',
+  'memory.write',
+  'files.read'
+]);
+// Returns: { 'memory.read': true, 'memory.write': true, 'files.read': false }
+
+// Get all granted permissions
+const allPermissions = await pame.permissions.list();
+```
+
+### Revoke Permissions
+
+```javascript
+// User can revoke permissions
+await pame.permissions.revoke(['files.read', 'calendar.write']);
+```
+
+## AI Integration
+
+### Text Enhancement
+
+```javascript
+// Enhance text with AI
+const enhanced = await pame.ai.enhance({
+  text: 'Meeting tomorrow at 3pm',
+  context: {
+    userTimezone: 'America/New_York',
+    preferences: await pame.memory.get('writing_style')
+  }
+});
+
+// Summarize text
+const summary = await pame.ai.summarize({
+  text: longArticle,
+  maxLength: 200,
+  style: 'bullet_points'
+});
+```
+
+### Generate Suggestions
+
+```javascript
+// Generate tags
+const tags = await pame.ai.generateTags('Project planning meeting notes');
+
+// Generate recommendations
+const recommendations = await pame.ai.recommend({
+  basedOn: 'user_history',
+  type: 'books',
+  limit: 10,
+  filters: {
+    genres: ['sci-fi', 'fantasy']
+  }
+});
+```
+
+### Natural Language Processing
+
+```javascript
+// Extract entities
+const entities = await pame.ai.extractEntities(
+  'Call John at 555-1234 tomorrow at 2pm'
+);
+// Returns: { people: ['John'], phones: ['555-1234'], times: ['tomorrow at 2pm'] }
+
+// Sentiment analysis
+const sentiment = await pame.ai.analyzeSentiment('I love this app!');
+// Returns: { score: 0.9, label: 'positive' }
+```
+
+## App Management
+
+### App Information
+
+```javascript
+// Get current app info
+const appInfo = await pame.app.getInfo();
+
+// Update app metadata
+await pame.app.update({
+  description: 'Updated description',
+  categories: ['productivity', 'ai-tools']
+});
+
+// Get app statistics
+const stats = await pame.app.getStats({
+  period: '30d',
+  metrics: ['users', 'requests', 'revenue']
+});
+```
+
+### User Management
+
+```javascript
+// Get current user
+const user = await pame.users.getCurrentUser();
+
+// Update user preferences for your app
+await pame.users.updatePreferences({
+  notifications: true,
+  theme: 'dark'
+});
+
+// Get user's installed apps
+const installedApps = await pame.users.getInstalledApps();
+```
+
+## Webhooks
+
+### Register Webhooks
+
+```javascript
+// Register webhook endpoint
+const webhook = await pame.webhooks.create({
+  url: 'https://yourapp.com/webhooks/pame',
+  events: [
+    'memory.created',
+    'memory.updated',
+    'permission.granted',
+    'permission.revoked',
+    'app.uninstalled'
+  ],
+  secret: 'your_webhook_secret'
+});
+
+// Update webhook
+await pame.webhooks.update(webhook.id, {
+  events: ['memory.created', 'memory.deleted']
+});
+
+// List webhooks
+const webhooks = await pame.webhooks.list();
+
+// Delete webhook
+await pame.webhooks.delete(webhook.id);
+```
+
+### Handle Webhook Events
+
+```javascript
+// Express.js example
+app.post('/webhooks/pame', (req, res) => {
+  const signature = req.headers['x-pame-signature'];
+  
+  // Verify webhook signature
+  if (!pame.webhooks.verify(req.body, signature, webhookSecret)) {
+    return res.status(401).send('Invalid signature');
+  }
+  
+  // Handle event
+  const { event, data } = req.body;
+  
+  switch (event) {
+    case 'memory.created':
+      console.log('New memory created:', data.memoryId);
+      break;
+    case 'permission.granted':
+      console.log('Permission granted:', data.permission);
+      break;
+    case 'app.uninstalled':
+      console.log('App uninstalled by user:', data.userId);
+      break;
+  }
+  
+  res.status(200).send('OK');
+});
+```
+
+## Advanced Features
+
+### Batch Operations
+
+```javascript
+// Batch write
+await pame.memory.batch([
+  { operation: 'store', key: 'pref1', value: 'value1' },
+  { operation: 'store', key: 'pref2', value: 'value2' },
+  { operation: 'delete', key: 'old_pref' }
+]);
+
+// Batch read
+const results = await pame.memory.batchGet([
+  'preferences',
+  'travel_history',
+  'notes'
+]);
+```
+
+### Transactions
+
+```javascript
+// Atomic operations
+await pame.memory.transaction(async (tx) => {
+  const counter = await tx.get('counter');
+  await tx.store('counter', counter + 1);
+  await tx.store('last_updated', new Date());
+});
+```
+
+### Caching
+
+```javascript
+// Enable caching
+const pame = new PameAI({
+  appId: 'your_app_id',
+  appSecret: 'your_app_secret',
+  cache: {
+    enabled: true,
+    ttl: 300,  // 5 minutes
+    maxSize: 100  // Max items
+  }
+});
+
+// Manual cache control
+await pame.cache.clear();
+await pame.cache.refresh('preferences');
+```
+
+### Rate Limiting
+
+```javascript
+// Handle rate limits gracefully
+const pameWithRetry = new PameAI({
+  appId: 'your_app_id',
+  appSecret: 'your_app_secret',
+  rateLimit: {
+    maxRetries: 3,
+    retryDelay: 1000,  // Start with 1 second
+    backoffMultiplier: 2  // Exponential backoff
+  }
+});
+
+// Check rate limit status
+const limits = await pame.getRateLimitStatus();
+console.log(`Remaining: ${limits.remaining}/${limits.limit}`);
+```
+
+## Testing
+
+### Mock SDK for Testing
+
+```javascript
+import { PameAIMock } from '@pame-ai/sdk/mock';
+
+// In your tests
+const pameMock = new PameAIMock();
+
+// Set up mock responses
+pameMock.memory.setMockData('preferences', {
+  theme: 'dark',
+  language: 'en'
+});
+
+// Use in tests
+const prefs = await pameMock.memory.get('preferences');
+expect(prefs.theme).toBe('dark');
+
+// Verify calls
+expect(pameMock.memory.getCalls()).toHaveLength(1);
+```
+
+### Test Helpers
+
+```javascript
+import { testHelpers } from '@pame-ai/sdk/test';
+
+// Generate test data
+const testUser = testHelpers.generateUser();
+const testMemory = testHelpers.generateMemory();
+
+// Test permission flows
+await testHelpers.simulatePermissionGrant(pame, [
+  'memory.read',
+  'memory.write'
+]);
+
+// Test webhook events
+await testHelpers.triggerWebhook(pame, 'memory.created', {
+  memoryId: 'test_123'
+});
+```
+
+## SDK Configuration
+
+### Environment Variables
+
+```bash
+# .env file
+PAME_APP_ID=your_app_id
+PAME_APP_SECRET=your_app_secret
+PAME_API_URL=https://api.pame.ai/v1
+PAME_TEST_MODE=false
+PAME_LOG_LEVEL=info
+```
+
+### TypeScript Support
+
+```typescript
+import { PameAI, Memory, Permission } from '@pame-ai/sdk';
+
+// Type-safe memory storage
+interface UserPreferences {
+  theme: 'light' | 'dark';
+  language: string;
+  notifications: boolean;
+}
+
+const preferences: UserPreferences = await pame.memory.get<UserPreferences>('preferences');
+
+// Type-safe permissions
+const permission: Permission = 'memory.read';
+const granted: boolean = await pame.permissions.check(permission);
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="1. Minimize Permission Requests">
+    Only request permissions you actually need. Users are more likely to install apps with fewer permission requirements.
+    
+    ```javascript
+    // ❌ Bad: Request everything upfront
+    await pame.permissions.request([
+      'memory.read', 'memory.write', 'calendar.read',
+      'files.read', 'contacts.read', 'location.access'
+    ]);
+    
+    // ✅ Good: Request only what's needed
+    await pame.permissions.request(['memory.read']);
+    
+    // Request additional permissions when needed
+    if (userWantsCalendarSync) {
+      await pame.permissions.request(['calendar.read']);
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="2. Handle Errors Gracefully">
+    Always handle potential errors and provide fallbacks.
+    
+    ```javascript
+    // ✅ Good error handling
+    async function getUserTheme() {
+      try {
+        const prefs = await pame.memory.get('preferences');
+        return prefs.theme;
+      } catch (error) {
+        if (error.code === 'NOT_FOUND') {
+          return 'light'; // Default theme
+        }
+        if (error.code === 'PERMISSION_DENIED') {
+          // Prompt user to grant permission
+          return 'light';
+        }
+        throw error; // Re-throw unexpected errors
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="3. Use Caching Wisely">
+    Cache frequently accessed data to improve performance.
+    
+    ```javascript
+    // Cache user preferences
+    let preferencesCache = null;
+    let cacheTime = 0;
+    
+    async function getPreferences() {
+      const now = Date.now();
+      if (preferencesCache && now - cacheTime < 60000) { // 1 minute
+        return preferencesCache;
+      }
+      
+      preferencesCache = await pame.memory.get('preferences');
+      cacheTime = now;
+      return preferencesCache;
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="4. Batch Operations">
+    Use batch operations for better performance.
+    
+    ```javascript
+    // ❌ Bad: Multiple individual calls
+    await pame.memory.store('pref1', value1);
+    await pame.memory.store('pref2', value2);
+    await pame.memory.store('pref3', value3);
+    
+    // ✅ Good: Single batch operation
+    await pame.memory.batch([
+      { operation: 'store', key: 'pref1', value: value1 },
+      { operation: 'store', key: 'pref2', value: value2 },
+      { operation: 'store', key: 'pref3', value: value3 }
+    ]);
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Authentication Errors">
+    ```javascript
+    // Error: Invalid app credentials
+    // Solution: Check your appId and appSecret
+    const pame = new PameAI({
+      appId: process.env.PAME_APP_ID,  // Ensure these are set
+      appSecret: process.env.PAME_APP_SECRET
+    });
+    ```
+  </Accordion>
+  
+  <Accordion title="Permission Denied">
+    ```javascript
+    // Error: PERMISSION_DENIED
+    // Solution: Request the required permission
+    try {
+      await pame.memory.get('data');
+    } catch (error) {
+      if (error.code === 'PERMISSION_DENIED') {
+        const granted = await pame.permissions.request(['memory.read']);
+        if (granted.includes('memory.read')) {
+          // Retry the operation
+          await pame.memory.get('data');
+        }
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Rate Limiting">
+    ```javascript
+    // Error: RATE_LIMITED
+    // Solution: Implement exponential backoff
+    async function retryWithBackoff(fn, maxRetries = 3) {
+      for (let i = 0; i < maxRetries; i++) {
+        try {
+          return await fn();
+        } catch (error) {
+          if (error.code === 'RATE_LIMITED' && i < maxRetries - 1) {
+            const delay = Math.pow(2, i) * 1000;
+            await new Promise(resolve => setTimeout(resolve, delay));
+          } else {
+            throw error;
+          }
+        }
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="CLI Documentation"
+    icon="terminal"
+    href="/developer-tools/cli"
+  >
+    Learn about the PAME.AI CLI
+  </Card>
+  <Card
+    title="API Reference"
+    icon="book"
+    href="/api-reference/introduction"
+  >
+    Explore the full API
+  </Card>
+  <Card
+    title="Example Apps"
+    icon="code"
+    href="https://github.com/ai-factory-llc/pame-ai-examples"
+  >
+    See complete examples
+  </Card>
+  <Card
+    title="Support"
+    icon="life-ring"
+    href="https://forum.pame.ai"
+  >
+    Get help from community
+  </Card>
+</CardGroup> 

@@ -1,33 +1,411 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: API Introduction
+description: Learn how to authenticate and interact with PAME.AI APIs
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+## Overview
 
-## Welcome
+The PAME.AI API provides programmatic access to all platform features, enabling developers to:
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+- 🧠 Access and manage shared memory
+- 🔐 Handle user permissions and privacy controls
+- 📱 Build and deploy AI applications
+- 💳 Process payments and subscriptions
+- 📊 Monitor app usage and analytics
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+## Base URL
+
+All API requests should be made to:
+
+<CodeGroup>
+
+```bash Production
+https://api.pame.ai/v1
+```
+
+```bash Staging
+https://api-staging.pame.ai/v1
+```
+
+```bash Development
+http://localhost:3000/v1
+```
+
+</CodeGroup>
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+PAME.AI uses OAuth 2.0 and API keys for authentication.
 
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
+### For App Development
+
+Apps authenticate using OAuth 2.0 to access user data:
+
+```javascript
+import { PameAI } from '@pame-ai/sdk';
+
+const pame = new PameAI({
+  appId: process.env.PAME_APP_ID,
+  appSecret: process.env.PAME_APP_SECRET,
+  redirectUri: 'https://yourapp.com/callback'
+});
+
+// Generate authorization URL
+const authUrl = pame.auth.getAuthorizationUrl({
+  scopes: ['memory.read', 'memory.write'],
+  state: 'random-state-string'
+});
+
+// After user authorizes, exchange code for token
+const { accessToken, refreshToken } = await pame.auth.exchangeCode(code);
 ```
+
+### For Platform Development
+
+Use API keys for server-to-server communication:
+
+```bash
+curl -H "Authorization: Bearer YOUR_API_KEY" \
+     https://api.pame.ai/v1/apps
+```
+
+## Request Format
+
+### Headers
+
+All requests must include:
+
+```http
+Content-Type: application/json
+Authorization: Bearer YOUR_ACCESS_TOKEN
+X-PAME-Version: 2024-01-01
+```
+
+### Request Body
+
+```javascript
+{
+  "data": {
+    // Your request data
+  },
+  "metadata": {
+    "requestId": "unique-request-id",
+    "timestamp": "2024-01-01T00:00:00Z"
+  }
+}
+```
+
+## Response Format
+
+### Successful Response
+
+```javascript
+{
+  "success": true,
+  "data": {
+    // Response data
+  },
+  "metadata": {
+    "requestId": "unique-request-id",
+    "timestamp": "2024-01-01T00:00:00Z",
+    "version": "v1"
+  }
+}
+```
+
+### Error Response
+
+```javascript
+{
+  "success": false,
+  "error": {
+    "code": "PERMISSION_DENIED",
+    "message": "User has not granted memory.write permission",
+    "details": {
+      "requiredPermission": "memory.write",
+      "grantedPermissions": ["memory.read"]
+    }
+  },
+  "metadata": {
+    "requestId": "unique-request-id",
+    "timestamp": "2024-01-01T00:00:00Z"
+  }
+}
+```
+
+## Rate Limiting
+
+API rate limits vary by plan:
+
+| Plan | Requests/min | Requests/hour | Requests/day |
+|------|--------------|---------------|--------------|
+| Free | 60 | 1,000 | 10,000 |
+| Pro | 300 | 10,000 | 100,000 |
+| Enterprise | Custom | Custom | Custom |
+
+Rate limit headers:
+
+```http
+X-RateLimit-Limit: 60
+X-RateLimit-Remaining: 45
+X-RateLimit-Reset: 1640995200
+```
+
+## Pagination
+
+List endpoints support pagination:
+
+```bash
+GET /v1/memory/items?page=2&limit=20
+```
+
+Response includes pagination metadata:
+
+```javascript
+{
+  "data": [...],
+  "pagination": {
+    "page": 2,
+    "limit": 20,
+    "total": 453,
+    "pages": 23,
+    "hasNext": true,
+    "hasPrev": true
+  }
+}
+```
+
+## Permissions
+
+Apps must request permissions to access user data:
+
+<AccordionGroup>
+  <Accordion title="Memory Permissions">
+    - `memory.read` - Read user's stored memories
+    - `memory.write` - Create and update memories
+    - `memory.delete` - Delete memories
+    - `memory.search` - Search across memories
+  </Accordion>
+  
+  <Accordion title="User Data Permissions">
+    - `profile.read` - Read user profile
+    - `preferences.read` - Read user preferences
+    - `preferences.write` - Update preferences
+    - `calendar.read` - Access calendar data
+    - `files.read` - Access authorized files
+  </Accordion>
+  
+  <Accordion title="App Permissions">
+    - `apps.install` - Install apps on behalf of user
+    - `apps.manage` - Manage installed apps
+    - `payments.process` - Process payments
+    - `analytics.read` - Access app analytics
+  </Accordion>
+</AccordionGroup>
+
+## SDK Libraries
+
+Official SDKs available for:
+
+<CardGroup cols={3}>
+  <Card
+    title="JavaScript/TypeScript"
+    icon="js"
+    href="https://npmjs.com/@pame-ai/sdk"
+  >
+    ```bash
+    npm install @pame-ai/sdk
+    ```
+  </Card>
+  <Card
+    title="Python"
+    icon="python"
+    href="https://pypi.org/project/pame-ai"
+  >
+    ```bash
+    pip install pame-ai
+    ```
+  </Card>
+  <Card
+    title="Go"
+    icon="golang"
+    href="https://pkg.go.dev/github.com/pame-ai/go-sdk"
+  >
+    ```bash
+    go get github.com/pame-ai/go-sdk
+    ```
+  </Card>
+</CardGroup>
+
+## Quick Examples
+
+### Store Memory
+
+```javascript
+const memory = await pame.memory.store('preferences', {
+  theme: 'dark',
+  language: 'en',
+  notifications: {
+    email: true,
+    push: false
+  }
+});
+```
+
+### Retrieve Memory
+
+```javascript
+const preferences = await pame.memory.get('preferences');
+console.log(preferences.theme); // 'dark'
+```
+
+### Search Memories
+
+```javascript
+const results = await pame.memory.search({
+  query: 'travel plans',
+  filters: {
+    type: 'travel',
+    dateRange: {
+      start: '2024-01-01',
+      end: '2024-12-31'
+    }
+  }
+});
+```
+
+### Request Permissions
+
+```javascript
+const granted = await pame.permissions.request([
+  'calendar.read',
+  'files.read'
+]);
+
+if (granted.includes('calendar.read')) {
+  const events = await pame.calendar.getEvents();
+}
+```
+
+## API Endpoints
+
+Explore our API endpoints:
+
+<CardGroup cols={2}>
+  <Card
+    title="User APIs"
+    icon="user"
+    href="/api-reference/endpoints/users/get"
+  >
+    Manage user accounts and profiles
+  </Card>
+  <Card
+    title="Memory APIs"
+    icon="brain"
+    href="/api-reference/endpoints/memory/store"
+  >
+    Store and retrieve shared memory
+  </Card>
+  <Card
+    title="App APIs"
+    icon="cube"
+    href="/api-reference/endpoints/apps/list"
+  >
+    Manage apps and permissions
+  </Card>
+  <Card
+    title="Payment APIs"
+    icon="credit-card"
+    href="/api-reference/endpoints/payments/create"
+  >
+    Process payments and subscriptions
+  </Card>
+</CardGroup>
+
+## Webhooks
+
+Configure webhooks to receive real-time events:
+
+```javascript
+// Configure webhook endpoint
+await pame.webhooks.create({
+  url: 'https://yourapp.com/webhooks/pame',
+  events: [
+    'memory.created',
+    'memory.updated',
+    'permission.granted',
+    'permission.revoked',
+    'payment.completed'
+  ]
+});
+```
+
+Webhook payload:
+
+```javascript
+{
+  "event": "memory.created",
+  "data": {
+    "memoryId": "mem_abc123",
+    "type": "preferences",
+    "userId": "user_xyz789"
+  },
+  "timestamp": "2024-01-01T00:00:00Z",
+  "signature": "sha256=..."
+}
+```
+
+## Error Codes
+
+Common error codes and solutions:
+
+| Code | Description | Solution |
+|------|-------------|----------|
+| `AUTH_REQUIRED` | No authentication provided | Include Bearer token |
+| `INVALID_TOKEN` | Token expired or invalid | Refresh access token |
+| `PERMISSION_DENIED` | Missing required permission | Request permission from user |
+| `RATE_LIMITED` | Too many requests | Implement exponential backoff |
+| `INVALID_REQUEST` | Malformed request | Check request format |
+| `NOT_FOUND` | Resource not found | Verify resource ID |
+| `CONFLICT` | Resource conflict | Handle duplicate entries |
+
+## Testing
+
+Use test mode for development:
+
+```javascript
+const pame = new PameAI({
+  appId: 'test_app_id',
+  appSecret: 'test_app_secret',
+  testMode: true // No real data affected
+});
+```
+
+Test credit cards:
+
+- `4242 4242 4242 4242` - Successful payment
+- `4000 0000 0000 0002` - Declined card
+- `4000 0000 0000 9995` - Insufficient funds
+
+## Support
+
+<CardGroup cols={2}>
+  <Card
+    title="API Status"
+    icon="signal"
+    href="https://status.pame.ai"
+  >
+    Check API availability
+  </Card>
+  <Card
+    title="Developer Forum"
+    icon="comments"
+    href="https://forum.pame.ai"
+  >
+    Get help from community
+  </Card>
+</CardGroup>
+
+---
+
+Ready to start building? Check out our [Quickstart Guide](/quickstart) or explore the [API endpoints](/api-reference/endpoints/users/get). 

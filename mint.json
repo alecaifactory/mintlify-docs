@@ -1,0 +1,175 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "PAME.AI Documentation",
+  "logo": {
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#0D9373",
+    "light": "#07C983",
+    "dark": "#0D9373",
+    "anchors": {
+      "from": "#0D9373",
+      "to": "#07C983"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "Support",
+      "url": "mailto:support@pame.ai"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Dashboard",
+    "url": "https://dashboard.pame.ai"
+  },
+  "tabs": [
+    {
+      "name": "API Reference",
+      "url": "api-reference"
+    },
+    {
+      "name": "Developer Tools",
+      "url": "developer-tools"
+    }
+  ],
+  "anchors": [
+    {
+      "name": "GitHub",
+      "icon": "github",
+      "url": "https://github.com/ai-factory-llc/pame-ai"
+    },
+    {
+      "name": "Community",
+      "icon": "slack",
+      "url": "https://pame-ai.slack.com"
+    },
+    {
+      "name": "Blog",
+      "icon": "newspaper",
+      "url": "https://blog.pame.ai"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Get Started",
+      "pages": [
+        "introduction",
+        "quickstart",
+        "development"
+      ]
+    },
+    {
+      "group": "Core Components",
+      "pages": [
+        "core/privacy-control",
+        "core/shared-memory",
+        "core/app-marketplace",
+        "core/developer-platform",
+        "core/payments"
+      ]
+    },
+    {
+      "group": "Architecture",
+      "pages": [
+        "architecture/overview",
+        "architecture/security",
+        "architecture/data-flow",
+        "architecture/scalability"
+      ]
+    },
+    {
+      "group": "API Documentation",
+      "pages": [
+        "api-reference/introduction",
+        "api-reference/authentication",
+        "api-reference/errors"
+      ]
+    },
+    {
+      "group": "User APIs",
+      "pages": [
+        "api-reference/endpoints/users/get",
+        "api-reference/endpoints/users/create",
+        "api-reference/endpoints/users/update",
+        "api-reference/endpoints/users/delete"
+      ]
+    },
+    {
+      "group": "App APIs",
+      "pages": [
+        "api-reference/endpoints/apps/list",
+        "api-reference/endpoints/apps/get",
+        "api-reference/endpoints/apps/install",
+        "api-reference/endpoints/apps/permissions"
+      ]
+    },
+    {
+      "group": "Memory APIs",
+      "pages": [
+        "api-reference/endpoints/memory/store",
+        "api-reference/endpoints/memory/retrieve",
+        "api-reference/endpoints/memory/search",
+        "api-reference/endpoints/memory/delete"
+      ]
+    },
+    {
+      "group": "Developer Tools",
+      "pages": [
+        "developer-tools/sdk",
+        "developer-tools/cli",
+        "developer-tools/testing",
+        "developer-tools/debugging"
+      ]
+    },
+    {
+      "group": "Deployment",
+      "pages": [
+        "deployment/local",
+        "deployment/staging",
+        "deployment/production",
+        "deployment/monitoring"
+      ]
+    },
+    {
+      "group": "Best Practices",
+      "pages": [
+        "best-practices/security",
+        "best-practices/performance",
+        "best-practices/testing",
+        "best-practices/documentation"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "twitter": "https://twitter.com/pame_ai",
+    "github": "https://github.com/ai-factory-llc/pame-ai",
+    "linkedin": "https://www.linkedin.com/company/pame-ai"
+  },
+  "backgroundImage": "/images/background.png",
+  "analytics": {
+    "ga4": {
+      "measurementId": "G-XXXXXXXXXX"
+    }
+  },
+  "feedback": {
+    "thumbsRating": true,
+    "suggestEdit": true
+  },
+  "api": {
+    "baseUrl": "https://api.pame.ai",
+    "auth": {
+      "method": "bearer"
+    }
+  },
+  "openapi": [
+    "/api-reference/openapi.json"
+  ],
+  "versions": [
+    "v1",
+    "v2"
+  ],
+  "url": "https://docs.pame.ai"
+}

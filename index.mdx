@@ -1,71 +1,182 @@
 ---
-title: Introduction
-description: "Welcome to the home of your new documentation"
+title: Welcome to PAME.AI
+description: The AI Operating System and App Store that puts privacy and developer experience first
 ---
 
 <img
-  className="block dark:hidden"
-  src="/images/hero-light.png"
-  alt="Hero Light"
-/>
-<img
-  className="hidden dark:block"
-  src="/images/hero-dark.png"
-  alt="Hero Dark"
+  src="/images/hero.png"
+  alt="PAME.AI Hero"
+  style={{ borderRadius: '0.5rem' }}
 />
 
-## Setting up
+## What is PAME.AI?
 
-The first step to world-class documentation is setting up your editing environments.
+PAME.AI (Personal AI Memory & Environment) is a revolutionary AI operating system and app store that addresses the five key requirements outlined by Y Combinator:
 
 <CardGroup cols={2}>
   <Card
-    title="Edit Your Docs"
-    icon="pen-to-square"
-    href="https://mintlify.com/docs/quickstart"
+    title="🔐 Privacy-First Data Control"
+    icon="shield-halved"
+    href="/core/privacy-control"
   >
-    Get your docs set up locally for easy development
+    Users control exactly what data each AI app can access - calendar, files, browsing history - with granular permissions
   </Card>
   <Card
-    title="Preview Changes"
-    icon="image"
-    href="https://mintlify.com/docs/development"
+    title="🧠 Shared Memory System"
+    icon="brain"
+    href="/core/shared-memory"
   >
-    Preview your changes before you push to make sure they're perfect
-  </Card>
-</CardGroup>
-
-## Make it yours
-
-Update your docs to your brand and add valuable content for the best user conversion.
-
-<CardGroup cols={2}>
-  <Card
-    title="Customize Style"
-    icon="palette"
-    href="https://mintlify.com/docs/settings/global"
-  >
-    Customize your docs to your company's colors and brands
+    All personal details, preferences, and context stay in one secure layer, not scattered across dozens of apps
   </Card>
   <Card
-    title="Reference APIs"
+    title="🏪 Curated App Marketplace"
+    icon="store"
+    href="/core/app-marketplace"
+  >
+    Discover and install vetted AI tools safely with reviews, ratings, and security guarantees
+  </Card>
+  <Card
+    title="🛠️ Developer Platform"
     icon="code"
-    href="https://mintlify.com/docs/api-playground/openapi"
+    href="/core/developer-platform"
   >
-    Automatically generate endpoints from an OpenAPI spec
+    Simple APIs that make building AI apps with memory easier, plus built-in safety rules
   </Card>
   <Card
-    title="Add Components"
-    icon="screwdriver-wrench"
-    href="https://mintlify.com/docs/content/components/accordions"
+    title="💳 Integrated Payments"
+    icon="credit-card"
+    href="/core/payments"
   >
-    Build interactive features and designs to guide your users
-  </Card>
-  <Card
-    title="Get Inspiration"
-    icon="stars"
-    href="https://mintlify.com/customers"
-  >
-    Check out our showcase of our favorite documentation
+    Seamless payment processing for paid apps and services with revenue sharing
   </Card>
 </CardGroup>
+
+## Why PAME.AI?
+
+### For End Users
+- **Privacy Control**: Your data stays yours. Grant permissions app-by-app
+- **Unified Experience**: No more re-entering preferences in every AI tool
+- **Trusted Apps**: All apps are reviewed and verified for safety
+- **One Payment System**: Manage all subscriptions in one place
+
+### For Developers
+- **Rich Context API**: Access user preferences and history (with permission)
+- **No Auth Hassle**: We handle user authentication and data storage
+- **Built-in Monetization**: Focus on your app, we handle payments
+- **Instant Distribution**: Reach users through our curated marketplace
+
+## Quick Example
+
+Imagine a travel AI that knows:
+- You always travel with your 9-year-old who loves window seats
+- You prefer morning flights
+- You're vegetarian
+- You have TSA PreCheck
+
+With PAME.AI, this context is available to any travel app you authorize - no need to re-enter it every time.
+
+## Architecture Overview
+
+```mermaid
+graph TD
+    A[User] --> B[PAME.AI OS Layer]
+    B --> C[Privacy Control]
+    B --> D[Shared Memory]
+    B --> E[App Marketplace]
+    
+    C --> F[App 1: Travel AI]
+    C --> G[App 2: Reading Assistant]
+    C --> H[App 3: Health Tracker]
+    
+    D --> F
+    D --> G
+    D --> H
+```
+
+## Getting Started
+
+<CardGroup cols={2}>
+  <Card
+    title="Quickstart Guide"
+    icon="rocket"
+    href="/quickstart"
+  >
+    Get your first app running in 5 minutes
+  </Card>
+  <Card
+    title="Development Setup"
+    icon="laptop-code"
+    href="/development"
+  >
+    Set up your local development environment
+  </Card>
+  <Card
+    title="API Reference"
+    icon="book"
+    href="/api-reference/introduction"
+  >
+    Explore our comprehensive API documentation
+  </Card>
+  <Card
+    title="Example Apps"
+    icon="flask"
+    href="https://github.com/ai-factory-llc/pame-ai-examples"
+  >
+    Learn from example applications
+  </Card>
+</CardGroup>
+
+## Join Our Community
+
+<CardGroup cols={3}>
+  <Card
+    title="GitHub"
+    icon="github"
+    href="https://github.com/ai-factory-llc/pame-ai"
+  >
+    Star us on GitHub
+  </Card>
+  <Card
+    title="Discord"
+    icon="discord"
+    href="https://discord.gg/pame-ai"
+  >
+    Chat with developers
+  </Card>
+  <Card
+    title="Twitter"
+    icon="twitter"
+    href="https://twitter.com/pame_ai"
+  >
+    Follow for updates
+  </Card>
+</CardGroup>
+
+## Ready to Build?
+
+<Tabs>
+  <Tab title="I'm a Developer">
+    Start building your AI app with shared memory:
+    ```bash
+    npm install @pame-ai/sdk
+    npx pame-ai init my-first-app
+    cd my-first-app
+    npm run dev
+    ```
+    [Continue to Quickstart →](/quickstart)
+  </Tab>
+  <Tab title="I'm a User">
+    Download PAME.AI to start using privacy-focused AI apps:
+    
+    <CardGroup cols={2}>
+      <Card title="Download for Mac" icon="apple" href="https://download.pame.ai/mac" />
+      <Card title="Download for Windows" icon="windows" href="https://download.pame.ai/windows" />
+      <Card title="Download for Linux" icon="linux" href="https://download.pame.ai/linux" />
+      <Card title="Mobile Coming Soon" icon="mobile" />
+    </CardGroup>
+  </Tab>
+</Tabs>
+
+---
+
+Built with ❤️ by [AI Factory LLC](https://aifactory.llc) 
