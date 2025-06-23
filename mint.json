@@ -31,6 +31,10 @@
       "url": "api-reference"
     },
     {
+      "name": "Channels",
+      "url": "channels"
+    },
+    {
       "name": "Developer Tools",
       "url": "developer-tools"
     }
@@ -58,26 +62,30 @@
       "pages": [
         "introduction",
         "quickstart",
+        "architecture",
         "development"
       ]
     },
     {
-      "group": "Core Components",
+      "group": "Core Concepts",
       "pages": [
-        "core/privacy-control",
-        "core/shared-memory",
-        "core/app-marketplace",
-        "core/developer-platform",
-        "core/payments"
-      ]
-    },
-    {
-      "group": "Architecture",
-      "pages": [
-        "architecture/overview",
-        "architecture/security",
-        "architecture/data-flow",
-        "architecture/scalability"
+        {
+          "group": "Channels",
+          "pages": [
+            "channels/introduction",
+            "channels/chrome-extension",
+            "channels/permissions",
+            "channels/development"
+          ]
+        },
+        {
+          "group": "Developer Platform",
+          "pages": [
+            "developer-tools/sdk",
+            "developer-tools/npm-integration",
+            "developer-tools/mintlify-integration"
+          ]
+        }
       ]
     },
     {
@@ -85,61 +93,24 @@
       "pages": [
         "api-reference/introduction",
         "api-reference/authentication",
-        "api-reference/errors"
+        {
+          "group": "Endpoints",
+          "pages": [
+            "api-reference/endpoints/channels",
+            "api-reference/endpoints/permissions",
+            "api-reference/endpoints/apps",
+            "api-reference/endpoints/users"
+          ]
+        }
       ]
     },
     {
-      "group": "User APIs",
+      "group": "Resources",
       "pages": [
-        "api-reference/endpoints/users/get",
-        "api-reference/endpoints/users/create",
-        "api-reference/endpoints/users/update",
-        "api-reference/endpoints/users/delete"
-      ]
-    },
-    {
-      "group": "App APIs",
-      "pages": [
-        "api-reference/endpoints/apps/list",
-        "api-reference/endpoints/apps/get",
-        "api-reference/endpoints/apps/install",
-        "api-reference/endpoints/apps/permissions"
-      ]
-    },
-    {
-      "group": "Memory APIs",
-      "pages": [
-        "api-reference/endpoints/memory/store",
-        "api-reference/endpoints/memory/retrieve",
-        "api-reference/endpoints/memory/search",
-        "api-reference/endpoints/memory/delete"
-      ]
-    },
-    {
-      "group": "Developer Tools",
-      "pages": [
-        "developer-tools/sdk",
-        "developer-tools/cli",
-        "developer-tools/testing",
-        "developer-tools/debugging"
-      ]
-    },
-    {
-      "group": "Deployment",
-      "pages": [
-        "deployment/local",
-        "deployment/staging",
-        "deployment/production",
-        "deployment/monitoring"
-      ]
-    },
-    {
-      "group": "Best Practices",
-      "pages": [
-        "best-practices/security",
-        "best-practices/performance",
-        "best-practices/testing",
-        "best-practices/documentation"
+        "resources/changelog",
+        "resources/contributing",
+        "resources/security",
+        "resources/troubleshooting"
       ]
     }
   ],
