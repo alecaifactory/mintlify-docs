@@ -1,0 +1,535 @@
+---
+title: "PAME CLI"
+description: "Command-line interface for building and deploying AI applications on the PAME platform"
+---
+
+## Installation
+
+<Info>
+The PAME CLI is publicly available on NPM. No authentication required for installation.
+</Info>
+
+```bash
+npm install -g @pameai/cli
+```
+
+Verify installation:
+```bash
+pame --version
+```
+
+## Quick Start
+
+Create and deploy your first AI application in minutes:
+
+```bash
+# Create a new AI chatbot app
+pame create my-ai-app --template ai-chatbot
+
+# Navigate to your project
+cd my-ai-app
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
+
+## Core Commands
+
+### `pame create`
+
+Create a new PAME application from templates.
+
+<CodeGroup>
+```bash Basic Usage
+pame create <app-name>
+```
+
+```bash With Options
+pame create my-app --template ai-chatbot --typescript --install
+```
+
+```bash Available Templates
+# AI Chatbot - Multi-provider chat interface
+pame create my-chat --template ai-chatbot
+
+# Complete App - Full Next.js application
+pame create my-app --template complete
+
+# Auth Webapp - Authentication-focused template
+pame create my-auth --template auth-webapp
+```
+</CodeGroup>
+
+#### Options
+
+<ParamField path="app-name" type="string" required>
+Name of your application. Will be used as the directory name.
+</ParamField>
+
+<ParamField path="--template, -t" type="string" default="complete">
+Template to use. Options: `ai-chatbot`, `complete`, `auth-webapp`
+</ParamField>
+
+<ParamField path="--typescript" type="boolean" default="true">
+Use TypeScript for the project
+</ParamField>
+
+<ParamField path="--install" type="boolean" default="true">
+Automatically install dependencies after creation
+</ParamField>
+
+### `pame auth`
+
+Manage authentication with the PAME platform.
+
+<Tabs>
+<Tab title="login">
+    ```bash
+    pame auth login
+    ```
+    
+    Authenticate with your PAME account. This will:
+    - Open a browser for secure authentication
+    - Store credentials locally
+    - Enable platform features
+</Tab>
+
+<Tab title="logout">
+    ```bash
+    pame auth logout
+    ```
+    
+    Log out from the PAME platform and clear stored credentials.
+</Tab>
+
+<Tab title="status">
+    ```bash
+    pame auth status
+    ```
+    
+    Check your current authentication status:
+    ```
+    ✓ Authenticated as: user@example.com
+    ✓ API Key: ****-****-****-1234
+    ✓ Token expires: 2024-01-15 10:30:00
+    ```
+</Tab>
+
+<Tab title="init">
+    ```bash
+    pame auth init
+    ```
+    
+    Initialize authentication in your current project. Creates:
+    - Auth configuration files
+    - API route handlers
+    - Session management setup
+</Tab>
+</Tabs>
+
+### `pame deploy`
+
+Deploy your application to production.
+
+<CodeGroup>
+```bash Quick Deploy
+# Deploy with automatic configuration
+pame deploy
+```
+
+```bash Custom Deployment
+# Deploy with custom settings
+pame deploy --name "My AI Assistant" \
+            --subdomain "my-assistant" \
+            --region "us-central1" \
+            --production
+```
+
+```bash Vercel Deployment
+# Deploy to Vercel instead of PAME infrastructure
+pame deploy --provider vercel
+```
+</CodeGroup>
+
+#### Options
+
+<ParamField path="--name" type="string">
+Display name for your application
+</ParamField>
+
+<ParamField path="--subdomain" type="string">
+Custom subdomain (e.g., `my-app.pame.ai`)
+</ParamField>
+
+<ParamField path="--provider" type="string" default="pame">
+Deployment provider. Options: `pame`, `vercel`
+</ParamField>
+
+<ParamField path="--region" type="string" default="us-central1">
+Deployment region for your application
+</ParamField>
+
+<ParamField path="--production" type="boolean" default="false">
+Deploy to production environment
+</ParamField>
+
+### `pame config`
+
+Manage application configuration.
+
+<AccordionGroup>
+<Accordion title="Set configuration value">
+    ```bash
+    pame config set <key> <value>
+    
+    # Examples
+    pame config set apiUrl https://api.pame.ai
+    pame config set defaultRegion us-west1
+    ```
+</Accordion>
+
+<Accordion title="Get configuration value">
+    ```bash
+    pame config get <key>
+    
+    # Example
+    pame config get apiUrl
+    # Output: https://api.pame.ai
+    ```
+</Accordion>
+
+<Accordion title="List all configuration">
+    ```bash
+    pame config list
+    
+    # Output:
+    # apiUrl: https://api.pame.ai
+    # defaultRegion: us-central1
+    # authToken: ****-****-****-1234
+    ```
+</Accordion>
+</AccordionGroup>
+
+### `pame init`
+
+Initialize PAME configuration in an existing project.
+
+```bash
+# In your project directory
+pame init
+
+# This creates:
+# - .pame/config.json
+# - Basic PAME integration files
+# - Environment variable templates
+```
+
+## Template Details
+
+### AI Chatbot Template
+
+<Info>
+Perfect for building conversational AI experiences with multiple provider support.
+</Info>
+
+**Features:**
+- ✅ OpenAI, Anthropic, Google, and Perplexity support
+- ✅ Streaming responses
+- ✅ Conversation history
+- ✅ Rate limiting
+- ✅ Beautiful chat UI
+
+**Project Structure:**
+```
+my-chatbot/
+├── app/
+│   ├── api/
+│   │   └── chat/
+│   │       └── [provider]/
+│   │           └── route.ts    # Dynamic API routes
+│   │       └── [provider]/
+│   │           └── route.ts    # Dynamic API routes
+│   ├── components/
+│   │   └── ChatInterface.tsx   # Main chat UI
+│   └── page.tsx               # Home page
+├── lib/
+│   ├── openai.ts             # OpenAI client
+│   ├── anthropic.ts          # Anthropic client
+│   └── utils.ts              # Utilities
+├── .env.example              # Environment template
+└── package.json
+```
+
+**Environment Variables:**
+```env
+OPENAI_API_KEY=your_key
+ANTHROPIC_API_KEY=your_key
+GOOGLE_GENERATIVE_AI_API_KEY=your_key
+PERPLEXITY_API_KEY=your_key
+```
+
+### Complete App Template
+
+<Info>
+Full-stack Next.js application with all the bells and whistles.
+</Info>
+
+**Features:**
+- ✅ Next.js 14 with App Router
+- ✅ TypeScript configured
+- ✅ PAME authentication integrated
+- ✅ Tailwind CSS styling
+- ✅ API route examples
+
+**Project Structure:**
+```
+my-app/
+├── app/
+│   ├── api/
+│   │   ├── auth/
+│   │   │   └── [...routes].ts
+│   │   └── data/
+│   │       └── route.ts
+│   ├── dashboard/
+│   │   └── page.tsx
+│   ├── layout.tsx
+│   └── page.tsx
+├── components/
+│   ├── Header.tsx
+│   └── AuthButton.tsx
+├── lib/
+│   └── pame.ts
+└── public/
+```
+
+### Auth Webapp Template
+
+<Info>
+Focused on authentication and user management.
+</Info>
+
+**Features:**
+- ✅ Complete auth flow
+- ✅ Session management
+- ✅ Protected routes
+- ✅ User profile pages
+- ✅ API key management
+
+## Environment Variables
+
+All templates use environment variables for configuration. Create a `.env.local` file:
+
+<CodeGroup>
+```env Development
+# Development environment
+PAME_API_URL=http://localhost:3000
+PAME_APP_ID=dev_your_app_id
+PAME_APP_SECRET=dev_your_secret
+NODE_ENV=development
+```
+
+```env Production
+# Production environment
+PAME_API_URL=https://api.pame.ai
+PAME_APP_ID=prod_your_app_id
+PAME_APP_SECRET=prod_your_secret
+NODE_ENV=production
+```
+</CodeGroup>
+
+<Warning>
+Never commit `.env.local` or any file containing secrets to version control.
+</Warning>
+
+## Development Workflow
+
+<Steps>
+<Step title="Create your project">
+    ```bash
+    pame create my-project --template ai-chatbot
+    cd my-project
+    ```
+</Step>
+
+<Step title="Install dependencies">
+    ```bash
+    npm install
+    ```
+</Step>
+
+<Step title="Configure environment">
+    ```bash
+    cp .env.example .env.local
+    # Edit .env.local with your API keys
+    ```
+</Step>
+
+<Step title="Start development">
+    ```bash
+    npm run dev
+    # Open http://localhost:3000
+    ```
+</Step>
+
+<Step title="Make changes">
+    Edit files and see live updates in your browser
+</Step>
+
+<Step title="Test your app">
+    ```bash
+    npm test
+    npm run lint
+    ```
+</Step>
+
+<Step title="Deploy to production">
+    ```bash
+    pame deploy --production
+    ```
+</Step>
+</Steps>
+
+## Troubleshooting
+
+<AccordionGroup>
+<Accordion title="Command not found: pame">
+    **Problem**: The `pame` command is not recognized
+    
+    **Solution**:
+    ```bash
+    # Ensure global installation
+    npm install -g @pameai/cli
+    
+    # Check npm global bin path
+    npm config get prefix
+    
+    # Add to PATH if needed (Mac/Linux)
+    export PATH=$PATH:$(npm config get prefix)/bin
+    ```
+</Accordion>
+
+<Accordion title="Authentication failed">
+    **Problem**: Cannot authenticate with PAME platform
+    
+    **Solution**:
+    ```bash
+    # Clear existing credentials
+    pame auth logout
+    
+    # Re-authenticate
+    pame auth login
+    
+    # Check status
+    pame auth status
+    ```
+</Accordion>
+
+<Accordion title="Deployment errors">
+    **Problem**: Deployment fails with errors
+    
+    **Solutions**:
+    - Ensure you're authenticated: `pame auth status`
+    - Check build locally: `npm run build`
+    - Verify environment variables are set
+    - Try verbose mode: `pame deploy --verbose`
+</Accordion>
+
+<Accordion title="Template installation fails">
+    **Problem**: Cannot create project from template
+    
+    **Solution**:
+    ```bash
+    # Update CLI to latest version
+    npm update -g @pameai/cli
+    
+    # Try with --verbose flag
+    pame create my-app --template ai-chatbot --verbose
+    
+    # Manual installation
+    git clone https://github.com/pameai/templates
+    cp -r templates/ai-chatbot my-app
+    ```
+</Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<Tip>
+Follow these best practices for optimal development experience.
+</Tip>
+
+### Project Structure
+- Keep API routes in `app/api/`
+- Store reusable components in `components/`
+- Use `lib/` for utilities and client configurations
+- Keep environment variables in `.env.local`
+
+### Security
+- Never expose API keys in client-side code
+- Use environment variables for all secrets
+- Implement rate limiting on API routes
+- Validate all user inputs
+
+### Performance
+- Use Next.js Image component for images
+- Implement proper caching strategies
+- Use streaming for AI responses
+- Optimize bundle size with dynamic imports
+
+### Development
+- Use TypeScript for better type safety
+- Write tests for critical functionality
+- Follow consistent coding standards
+- Document your API endpoints
+
+## CLI Configuration
+
+The CLI stores configuration in `~/.pame/config.json`:
+
+```json
+{
+  "apiUrl": "https://api.pame.ai",
+  "authToken": "your-auth-token",
+  "defaultRegion": "us-central1",
+  "telemetry": true
+}
+```
+
+### Disable Telemetry
+
+```bash
+pame config set telemetry false
+```
+
+### Custom API Endpoint
+
+```bash
+pame config set apiUrl https://custom-api.pame.ai
+```
+
+## Getting Help
+
+<CardGroup cols={2}>
+<Card title="Documentation" icon="book" href="/introduction">
+    Browse complete documentation
+</Card>
+
+<Card title="GitHub Issues" icon="github" href="https://github.com/alecaifactory/pame.ai/issues">
+    Report bugs or request features
+</Card>
+
+<Card title="Discord Community" icon="discord" href="https://discord.gg/pame-ai">
+    Get help from the community
+</Card>
+
+<Card title="Email Support" icon="envelope" href="mailto:support@pame.ai">
+    Contact our support team
+</Card>
+</CardGroup>
+
+<Note>
+The PAME CLI is open source and available on [GitHub](https://github.com/alecaifactory/pame.ai). Contributions are welcome!
+</Note> 

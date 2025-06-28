@@ -1,0 +1,432 @@
+---
+title: "NPM Access Control"
+description: "Managing public and private packages in the @pameai organization with paid plan benefits"
+---
+
+## Package Access Strategy
+
+<Tip>
+The PAME.AI ecosystem uses a dual-access NPM strategy to serve both external developers and internal teams with appropriate security boundaries.
+</Tip>
+
+<CardGroup cols={2}>
+<Card title="@pameai/cli" icon="globe" href="#public-package">
+    **PUBLIC** - External developers building on PAME platform
+</Card>
+
+<Card title="@pameai/core-cli" icon="lock" href="#private-package">
+    **PRIVATE** - Internal team ecosystem management tools
+</Card>
+</CardGroup>
+
+## Public Package: @pameai/cli
+
+<Info>
+Anyone can install and use this package. No authentication required.
+</Info>
+
+### Installation
+
+```bash
+# Global installation for external developers
+npm install -g @pameai/cli
+
+# Verify installation
+pame --version
+```
+
+### Configuration
+
+<CodeGroup>
+```json package.json
+{
+  "name": "@pameai/cli",
+  "publishConfig": {
+    "access": "public"
+  }
+}
+```
+
+```bash Publishing
+# Automatically published as public
+npm publish
+```
+</CodeGroup>
+
+### Usage Examples
+
+<Steps>
+<Step title="Create new project">
+    ```bash
+    pame create my-ai-app --template ai-chatbot
+    ```
+</Step>
+
+<Step title="Authenticate with platform">
+    ```bash
+    pame auth login
+    ```
+</Step>
+
+<Step title="Deploy to production">
+    ```bash
+    pame deploy my-ai-app
+    ```
+</Step>
+</Steps>
+
+## Private Package: @pameai/core-cli
+
+<Warning>
+This package requires @pameai organization membership. Installation will fail for non-members.
+</Warning>
+
+### Access Requirements
+
+<ParamField path="Organization Membership" type="required">
+Must be added to @pameai organization by admin
+</ParamField>
+
+<ParamField path="NPM Authentication" type="required">
+Must login with organization member account
+</ParamField>
+
+<ParamField path="Paid Plan" type="required">
+Requires NPM paid plan for private package access
+</ParamField>
+
+### Installation Process
+
+<Steps>
+<Step title="Verify authentication">
+    ```bash
+    npm whoami
+    # Should return your NPM username
+    ```
+    
+    <Check>
+    You should see your NPM username. If not, run `npm login`.
+    </Check>
+</Step>
+
+<Step title="Check organization membership">
+    ```bash
+    npm org ls @pameai
+    # Should list you as a member
+    ```
+    
+    <Warning>
+    If you're not listed, contact organization admin to add you.
+    </Warning>
+</Step>
+
+<Step title="Install private package">
+    ```bash
+    npm install -g @pameai/core-cli
+    ```
+    
+    <Check>
+    Package should install successfully for organization members.
+    </Check>
+</Step>
+
+<Step title="Verify installation">
+    ```bash
+    pame-core --version
+    ```
+</Step>
+</Steps>
+
+### Configuration
+
+<CodeGroup>
+```json package.json
+{
+  "name": "@pameai/core-cli",
+  "private": false,
+  "publishConfig": {
+    "access": "restricted"
+  }
+}
+```
+
+```bash Publishing
+# Automatically published as private
+npm publish
+```
+</CodeGroup>
+
+### Internal Team Usage
+
+<Tabs>
+<Tab title="Ecosystem Management">
+    ```bash
+    # Check ecosystem status
+    pame-core ecosystem status
+    
+    # Deploy all services
+    pame-core deploy all
+    
+    # Monitor infrastructure
+    pame-core monitor dashboard
+    ```
+</Tab>
+
+<Tab title="Analytics">
+    ```bash
+    # Usage analytics
+    pame-core analytics usage
+    
+    # Performance metrics
+    pame-core analytics performance
+    
+    # Team activity
+    pame-core analytics team
+    ```
+</Tab>
+
+<Tab title="Team Management">
+    ```bash
+    # List team members
+    pame-core team list
+    
+    # Add team member
+    pame-core team add <username>
+    
+    # Manage permissions
+    pame-core team permissions <username>
+    ```
+</Tab>
+</Tabs>
+
+## Organization Management
+
+### Adding Team Members
+
+<Tabs>
+<Tab title="NPM Website">
+    <Steps>
+    <Step title="Navigate to organization">
+        Go to https://www.npmjs.com/settings/pameai/
+    </Step>
+    
+    <Step title="Access members section">
+        Click on "Members" in the navigation
+    </Step>
+    
+    <Step title="Add new member">
+        Click "Add Member" and enter NPM username
+    </Step>
+    
+    <Step title="Assign role">
+        Choose between Developer or Admin role
+    </Step>
+    </Steps>
+</Tab>
+
+<Tab title="NPM CLI">
+    ```bash
+    # Add user to organization
+    npm org add @pameai <username>
+    
+    # Set user role
+    npm org set @pameai <username> developer
+    
+    # List organization members
+    npm org ls @pameai
+    ```
+</Tab>
+</Tabs>
+
+### Team Roles
+
+| Role | Package Access | Organization Management |
+|------|---------------|------------------------|
+| **Admin** | ✅ Full access to all packages | ✅ Add/remove members, manage packages |
+| **Developer** | ✅ Install/use private packages | ❌ Limited management access |
+
+## Publishing Workflow
+
+<Note>
+All publishing should use automated scripts to ensure proper access control.
+</Note>
+
+### Automated Publishing (Recommended)
+
+<CodeGroup>
+```bash Version Manager
+# Bump version and publish both packages
+./version-manager.sh bump minor --publish
+```
+
+```bash Publishing Script
+# Publish both packages with proper access control
+./publish-npm-packages.sh both
+```
+
+```bash Dry Run
+# Test publishing without actually publishing
+./publish-npm-packages.sh both --dry-run
+```
+</CodeGroup>
+
+### Manual Publishing
+
+<Warning>
+Manual publishing should be avoided. Use automated scripts to prevent access control errors.
+</Warning>
+
+<CodeGroup>
+```bash Public Package
+cd pame-cli
+npm publish    # Uses publishConfig: { "access": "public" }
+```
+
+```bash Private Package
+cd pame-core-cli
+npm publish    # Uses publishConfig: { "access": "restricted" }
+```
+</CodeGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+<Accordion title="Cannot install private package">
+    **Error**: `403 Forbidden - you do not have permission`
+    
+    **Solutions**:
+    ```bash
+    # Check authentication
+    npm whoami
+    
+    # Login with organization member account
+    npm logout && npm login
+    
+    # Verify organization membership
+    npm org ls @pameai
+    ```
+    
+    <Tip>
+    Contact organization admin if you're not listed as a member.
+    </Tip>
+</Accordion>
+
+<Accordion title="Published with wrong access level">
+    **Problem**: Package published as public instead of private (or vice versa)
+    
+    **Solution**:
+    ```bash
+    # Unpublish incorrect version
+    npm unpublish @pameai/package@version
+    
+    # Republish with correct settings
+    npm publish    # Will use publishConfig
+    ```
+    
+    <Warning>
+    Be careful with unpublishing. It can break dependencies.
+    </Warning>
+</Accordion>
+
+<Accordion title="Team member cannot access private package">
+    **Problem**: Team member gets 403 error when installing
+    
+    **Admin Solution**:
+    ```bash
+    # Add member to organization
+    npm org add @pameai team-member
+    ```
+    
+    **Team Member Solution**:
+    ```bash
+    # Refresh authentication
+    npm logout && npm login
+    npm install -g @pameai/core-cli
+    ```
+</Accordion>
+</AccordionGroup>
+
+## NPM Paid Plan Benefits
+
+<Info>
+Your paid NPM plan enables private packages and advanced team management features.
+</Info>
+
+### Private Package Features
+
+<CardGroup cols={2}>
+<Card title="Unlimited Private Packages" icon="infinity">
+    No limit on private packages under @pameai scope
+</Card>
+
+<Card title="Team Management" icon="users">
+    Granular permissions and role-based access
+</Card>
+
+<Card title="Private Analytics" icon="chart-line">
+    Organization-only usage statistics and insights
+</Card>
+
+<Card title="Enhanced Security" icon="shield">
+    Advanced security controls and audit capabilities
+</Card>
+</CardGroup>
+
+### Cost Structure
+
+| Feature | Free Plan | Paid Plan |
+|---------|-----------|-----------|
+| **Public packages** | ✅ Unlimited | ✅ Unlimited |
+| **Private packages** | ❌ Not available | ✅ Unlimited |
+| **Team members** | ❌ Not available | ✅ Per-user pricing |
+| **Analytics** | ✅ Basic | ✅ Advanced |
+| **Support** | ✅ Community | ✅ Priority |
+
+## Best Practices
+
+<Tip>
+Follow these security and management best practices for your NPM organization.
+</Tip>
+
+### Security Guidelines
+
+- ✅ **Principle of Least Privilege**: Only grant access as needed
+- ✅ **Regular Audits**: Review organization members monthly
+- ✅ **Role-Based Access**: Use appropriate roles (Admin/Developer)
+- ✅ **Automated Publishing**: Use scripts to prevent access control errors
+
+### Team Management
+
+```bash
+# Regular member audit
+npm org ls @pameai
+
+# Remove former team members
+npm org rm @pameai <former-member>
+
+# Monitor package usage
+npm view @pameai/core-cli --json
+```
+
+### Publishing Security
+
+- ✅ Always use `publishConfig` in package.json
+- ✅ Test with `--dry-run` before actual publishing
+- ✅ Verify package access after publishing
+- ✅ Use automated version management scripts
+
+## Summary
+
+<Check>
+Your PAME.AI NPM organization is configured with professional access control:
+</Check>
+
+- **@pameai/cli** - Public package for external developers
+- **@pameai/core-cli** - Private package for internal team
+- Proper `publishConfig` settings for automated access control
+- Team management capabilities with paid plan features
+- Comprehensive security and troubleshooting documentation
+
+<Tip>
+Use the automated publishing scripts to ensure consistent access control across all package releases.
+</Tip> 

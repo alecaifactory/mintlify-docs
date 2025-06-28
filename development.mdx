@@ -1,468 +1,523 @@
 ---
-title: Development Setup
-description: Set up your local development environment for PAME.AI
+title: "Development Guide"
+description: "Set up your development environment and start building AI applications on PAME"
 ---
-
-<Info>
-  This guide covers setting up PAME.AI core platform for local development. If you just want to build apps on PAME.AI, see the [Quickstart Guide](/quickstart).
-</Info>
 
 ## Prerequisites
 
-Before you begin, ensure you have:
+<Info>
+Ensure you have the following installed before starting development.
+</Info>
+
+<CardGroup cols={2}>
+<Card title="Node.js 18+" icon="node" href="https://nodejs.org">
+    Required for running JavaScript/TypeScript applications
+</Card>
+
+<Card title="Git" icon="git-alt" href="https://git-scm.com">
+    Version control for managing your code
+</Card>
+
+<Card title="VS Code (Recommended)" icon="code" href="https://code.visualstudio.com">
+    Or your preferred code editor
+</Card>
+
+<Card title="GitHub Account" icon="github" href="https://github.com">
+    For repository management and deployment
+</Card>
+</CardGroup>
+
+## Quick Setup
+
+Get started with PAME development in minutes:
+
+```bash
+# Install PAME CLI globally
+npm install -g @pameai/cli
+
+# Create your first project
+pame create my-ai-app --template ai-chatbot
+
+# Navigate to project
+cd my-ai-app
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
+
+Your app is now running at [http://localhost:3000](http://localhost:3000) 🎉
+
+## Development Environment
+
+### Recommended VS Code Extensions
+
+<AccordionGroup>
+<Accordion title="Essential Extensions">
+    - **ESLint**: JavaScript/TypeScript linting
+    - **Prettier**: Code formatting
+    - **TypeScript**: Enhanced TypeScript support
+    - **Tailwind CSS IntelliSense**: Tailwind class suggestions
+    - **GitLens**: Enhanced Git integration
+</Accordion>
+
+<Accordion title="AI Development Extensions">
+    - **GitHub Copilot**: AI-powered code suggestions
+    - **REST Client**: Test API endpoints
+    - **Thunder Client**: Alternative API testing
+    - **DotENV**: Environment variable syntax highlighting
+</Accordion>
+</AccordionGroup>
+
+### Environment Configuration
+
+Create a `.env.local` file in your project root:
+
+<CodeGroup>
+```env Basic Configuration
+# Required for all projects
+NODE_ENV=development
+PAME_API_URL=http://localhost:3000
+
+# Your app credentials
+PAME_APP_ID=dev_your_app_id
+PAME_APP_SECRET=dev_your_secret
+```
+
+```env AI Providers
+# Add the providers you need
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
+GOOGLE_GENERATIVE_AI_API_KEY=...
+PERPLEXITY_API_KEY=pplx-...
+```
+
+```env Database (Optional)
+# If using database
+DATABASE_URL=postgresql://user:pass@localhost/db
+REDIS_URL=redis://localhost:6379
+```
+</CodeGroup>
+
+<Warning>
+Never commit `.env.local` or any file containing API keys to version control.
+</Warning>
+
+## Project Structure
+
+Understanding the PAME project structure:
+
+```
+my-ai-app/
+├── app/                    # Next.js App Router
+│   ├── api/               # API routes
+│   │   ├── auth/         # Authentication endpoints
+│   │   └── chat/         # AI chat endpoints
+│   ├── components/        # React components
+│   ├── layout.tsx        # Root layout
+│   └── page.tsx          # Home page
+├── lib/                   # Utilities and configs
+│   ├── ai-providers.ts   # AI provider setup
+│   └── utils.ts          # Helper functions
+├── public/                # Static assets
+├── styles/                # CSS/Tailwind styles
+├── .env.local            # Environment variables
+├── next.config.js        # Next.js configuration
+├── package.json          # Dependencies
+└── tsconfig.json         # TypeScript config
+```
+
+## Development Workflow
 
 <Steps>
-  <Step title="System Requirements">
-    - **OS**: macOS, Linux, or Windows with WSL2
-    - **RAM**: 8GB minimum, 16GB recommended
-    - **Storage**: 10GB free space
-  </Step>
-  
-  <Step title="Required Software">
-    - [Node.js](https://nodejs.org/) 18+ and npm 8+
-    - [Git](https://git-scm.com/) 2.34+
-    - [Docker](https://docker.com/) 20.10+
-    - [Google Cloud SDK](https://cloud.google.com/sdk)
-    - [Terraform](https://terraform.io/) 1.5+
-  </Step>
-  
-  <Step title="Accounts">
-    - GitHub account
-    - Google Cloud Platform account
-    - Mintlify account (for documentation)
-    - NPM account (for package publishing)
-  </Step>
+<Step title="Start development server">
+    ```bash
+    npm run dev
+    ```
+    
+    This starts:
+    - Next.js development server on port 3000
+    - Hot module replacement (HMR)
+    - TypeScript type checking
+    - Error overlay for debugging
+</Step>
+
+<Step title="Make code changes">
+    Edit files and see changes instantly:
+    
+    - **Components**: Update UI in `app/components/`
+    - **API Routes**: Modify endpoints in `app/api/`
+    - **Styles**: Edit Tailwind classes or CSS files
+    
+    <Tip>
+    Use VS Code's integrated terminal to keep the dev server running while coding.
+    </Tip>
+</Step>
+
+<Step title="Test your changes">
+    ```bash
+    # Run tests
+    npm test
+    
+    # Type checking
+    npm run type-check
+    
+    # Linting
+    npm run lint
+    ```
+</Step>
+
+<Step title="Build for production">
+    ```bash
+    npm run build
+    ```
+    
+    This checks for:
+    - Build errors
+    - TypeScript errors
+    - Missing dependencies
+    - Production optimizations
+</Step>
 </Steps>
 
-## 🚀 Quick Setup
+## Working with AI Providers
 
-Run our setup script for the fastest setup:
-
-```bash
-git clone https://github.com/ai-factory-llc/pame-ai.git
-cd pame-ai
-./scripts/setup.sh
-```
-
-This script will:
-- Check prerequisites
-- Install dependencies
-- Set up databases
-- Configure environment
-- Run initial tests
-
-## 📋 Manual Setup
-
-### Step 1: Clone the Repository
-
-```bash
-git clone https://github.com/ai-factory-llc/pame-ai.git
-cd pame-ai
-git checkout develop
-```
-
-### Step 2: Install Dependencies
-
-```bash
-npm install
-```
-
-### Step 3: Environment Configuration
-
-Copy the example environment file:
-
-```bash
-cp env.example .env
-```
-
-Configure your `.env` file:
-
-```env .env
-# Core Configuration
-NODE_ENV=development
-PORT=3000
-API_URL=http://localhost:3000
-
-# Database Configuration
-DATABASE_URL=postgresql://pameai:password@localhost:5432/pame_ai_dev
-REDIS_URL=redis://localhost:6379
-
-# Authentication
-JWT_SECRET=your-super-secret-jwt-key-change-this
-SESSION_SECRET=your-session-secret-change-this
-
-# Mintlify Documentation
-MINTLIFY_PROJECT_ID=your-project-id
-MINTLIFY_ADMIN_API_KEY=your-admin-key
-MINTLIFY_ASSISTANT_API_KEY=your-assistant-key
-
-# NPM Registry
-NPM_PACKAGE_API_TOKEN=your-npm-token
-
-# Google Cloud Platform
-GCP_PROJECT_ID=your-gcp-project
-GCP_REGION=us-central1
-GCP_SERVICE_ACCOUNT_KEY=path/to/service-account.json
-
-# Stripe Payments
-STRIPE_SECRET_KEY=sk_test_your_key
-STRIPE_PUBLIC_KEY=pk_test_your_key
-STRIPE_WEBHOOK_SECRET=whsec_your_secret
-
-# Monitoring
-SENTRY_DSN=your-sentry-dsn
-LOG_LEVEL=debug
-```
-
-### Step 4: Database Setup
+### Setting Up Multiple Providers
 
 <Tabs>
-  <Tab title="Docker (Recommended)">
-    ```bash
-    # Start PostgreSQL and Redis
-    docker-compose up -d postgres redis
+<Tab title="OpenAI">
+    ```typescript lib/openai.ts
+    import OpenAI from 'openai';
     
-    # Run migrations
-    npm run db:migrate
+    export const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
     
-    # Seed development data
-    npm run db:seed
+    // Example usage
+    export async function generateText(prompt: string) {
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4",
+        messages: [{ role: "user", content: prompt }],
+      });
+      
+      return completion.choices[0].message.content;
+    }
     ```
-  </Tab>
-  
-  <Tab title="Local Installation">
-    ```bash
-    # Install PostgreSQL
-    brew install postgresql@15
-    brew services start postgresql@15
+</Tab>
+
+<Tab title="Anthropic">
+    ```typescript lib/anthropic.ts
+    import Anthropic from '@anthropic-ai/sdk';
     
-    # Install Redis
-    brew install redis
-    brew services start redis
+    export const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
     
-    # Create database
-    createdb pame_ai_dev
-    
-    # Run migrations
-    npm run db:migrate
-    
-    # Seed data
-    npm run db:seed
+    // Example usage
+    export async function generateText(prompt: string) {
+      const response = await anthropic.messages.create({
+        model: 'claude-3-opus-20240229',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 1024,
+      });
+      
+      return response.content[0].text;
+    }
     ```
-  </Tab>
+</Tab>
+
+<Tab title="Google AI">
+    ```typescript lib/google.ts
+    import { GoogleGenerativeAI } from '@google/generative-ai';
+    
+    const genAI = new GoogleGenerativeAI(
+      process.env.GOOGLE_GENERATIVE_AI_API_KEY!
+    );
+    
+    export const model = genAI.getGenerativeModel({ 
+      model: "gemini-pro" 
+    });
+    
+    // Example usage
+    export async function generateText(prompt: string) {
+      const result = await model.generateContent(prompt);
+      return result.response.text();
+    }
+    ```
+</Tab>
 </Tabs>
 
-### Step 5: Start Development Services
+### Creating API Routes
 
-<CodeGroup>
+Example chat API route supporting multiple providers:
 
-```bash Terminal 1 - API Server
-npm run dev:api
-# API running at http://localhost:3000
-```
+```typescript app/api/chat/[provider]/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { openai } from '@/lib/openai';
+import { anthropic } from '@/lib/anthropic';
+import { model as googleModel } from '@/lib/google';
 
-```bash Terminal 2 - UI Development
-npm run dev:ui
-# UI running at http://localhost:3001
-```
-
-```bash Terminal 3 - Documentation
-npm run docs:dev
-# Docs at http://localhost:3002
-```
-
-</CodeGroup>
-
-## 🏗️ Project Structure
-
-```
-pame.ai/
-├── api/                    # REST/GraphQL API
-│   ├── controllers/        # Request handlers
-│   ├── models/            # Data models
-│   ├── routes/            # API routes
-│   └── middleware/        # Express middleware
-├── core/                  # Core platform components
-│   ├── privacy-control/   # Permission management
-│   ├── shared-memory/     # User context storage
-│   ├── app-marketplace/   # App store functionality
-│   ├── developer-platform/# Developer tools & SDK
-│   └── payments/          # Payment processing
-├── ui/                    # Frontend applications
-│   ├── dashboard/         # User dashboard
-│   ├── marketplace/       # App marketplace UI
-│   └── developer-portal/  # Developer dashboard
-├── database/              # Database schemas & migrations
-├── terraform/             # Infrastructure as code
-├── __tests__/            # Test suites
-└── docs/                 # Documentation
-```
-
-## 🧪 Testing
-
-### Run All Tests
-
-```bash
-npm test
-```
-
-### Run Specific Test Suites
-
-<CodeGroup>
-
-```bash Unit Tests
-npm run test:unit
-```
-
-```bash Integration Tests
-npm run test:integration
-```
-
-```bash E2E Tests
-npm run test:e2e
-```
-
-```bash Coverage Report
-npm run test:coverage
-```
-
-</CodeGroup>
-
-### Testing Best Practices
-
-1. **Write tests first** (TDD approach)
-2. **Mock external services** in unit tests
-3. **Use realistic data** in integration tests
-4. **Test error scenarios** not just happy paths
-5. **Maintain 80%+ coverage**
-
-## 🔧 Development Tools
-
-### Code Quality
-
-```bash
-# Lint your code
-npm run lint
-
-# Auto-fix linting issues
-npm run lint:fix
-
-# Format with Prettier
-npm run format
-
-# Run quality checks
-npm run quality:check
-```
-
-### Git Hooks
-
-We use Husky for Git hooks:
-
-- **pre-commit**: Runs linting and formatting
-- **pre-push**: Runs tests
-- **commit-msg**: Validates commit message format
-
-### Commit Message Format
-
-Follow [Conventional Commits](https://www.conventionalcommits.org/):
-
-```
-type(scope): subject
-
-body
-
-footer
-```
-
-Examples:
-```
-feat(auth): add OAuth2 support
-fix(memory): resolve data persistence issue
-docs(api): update authentication examples
-chore(deps): upgrade to React 18
-```
-
-## 🌐 Local Infrastructure
-
-### Start Local Services
-
-```bash
-# Start all services with Docker Compose
-docker-compose up -d
-
-# Check service health
-docker-compose ps
-
-# View logs
-docker-compose logs -f [service-name]
-
-# Stop services
-docker-compose down
-```
-
-### Service URLs
-
-| Service | URL | Description |
-|---------|-----|-------------|
-| API | http://localhost:3000 | Main API server |
-| UI | http://localhost:3001 | User interface |
-| Docs | http://localhost:3002 | Documentation |
-| PostgreSQL | localhost:5432 | Database |
-| Redis | localhost:6379 | Cache & queues |
-| Mailhog | http://localhost:8025 | Email testing |
-
-## 🐛 Debugging
-
-### VS Code Configuration
-
-`.vscode/launch.json`:
-
-```json
-{
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug API",
-      "program": "${workspaceFolder}/api/server.js",
-      "envFile": "${workspaceFolder}/.env"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug Tests",
-      "program": "${workspaceFolder}/node_modules/.bin/jest",
-      "args": ["--runInBand"],
-      "console": "integratedTerminal"
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { provider: string } }
+) {
+  const { messages } = await req.json();
+  const { provider } = params;
+  
+  try {
+    let response;
+    
+    switch (provider) {
+      case 'openai':
+        response = await openai.chat.completions.create({
+          model: 'gpt-4',
+          messages,
+          stream: true,
+        });
+        break;
+        
+      case 'anthropic':
+        response = await anthropic.messages.create({
+          model: 'claude-3-opus-20240229',
+          messages,
+          max_tokens: 1024,
+          stream: true,
+        });
+        break;
+        
+      case 'google':
+        const result = await googleModel.generateContent(
+          messages[messages.length - 1].content
+        );
+        response = result.response.text();
+        break;
+        
+      default:
+        return NextResponse.json(
+          { error: 'Invalid provider' },
+          { status: 400 }
+        );
     }
-  ]
+    
+    // Handle streaming response
+    if (response instanceof ReadableStream) {
+      return new Response(response);
+    }
+    
+    return NextResponse.json({ content: response });
+  } catch (error) {
+    console.error(`${provider} API error:`, error);
+    return NextResponse.json(
+      { error: 'AI provider error' },
+      { status: 500 }
+    );
+  }
 }
 ```
 
-### Common Issues
+## Debugging Tips
 
 <AccordionGroup>
-  <Accordion title="Port already in use">
+<Accordion title="Common Development Issues">
+    **Module not found errors**
     ```bash
-    # Find process using port
-    lsof -i :3000
-    
-    # Kill process
-    kill -9 [PID]
-    ```
-  </Accordion>
-  
-  <Accordion title="Database connection failed">
-    ```bash
-    # Check PostgreSQL status
-    brew services list
-    
-    # Restart PostgreSQL
-    brew services restart postgresql@15
-    
-    # Check connection
-    psql -U postgres -h localhost
-    ```
-  </Accordion>
-  
-  <Accordion title="Redis connection error">
-    ```bash
-    # Check Redis status
-    redis-cli ping
-    
-    # Restart Redis
-    brew services restart redis
-    ```
-  </Accordion>
-  
-  <Accordion title="npm install fails">
-    ```bash
-    # Clear npm cache
-    npm cache clean --force
-    
-    # Delete node_modules
-    rm -rf node_modules package-lock.json
-    
-    # Reinstall
+    # Clear cache and reinstall
+    rm -rf node_modules .next
     npm install
     ```
-  </Accordion>
+    
+    **TypeScript errors**
+    ```bash
+    # Check types without building
+    npm run type-check
+    ```
+    
+    **Environment variable issues**
+    ```bash
+    # Verify env vars are loaded
+    console.log(process.env.OPENAI_API_KEY);
+    ```
+</Accordion>
+
+<Accordion title="API Debugging">
+    **Log API requests**
+    ```typescript
+    // Add to API routes
+    console.log('Request:', {
+      method: req.method,
+      url: req.url,
+      body: await req.json(),
+    });
+    ```
+    
+    **Test with cURL**
+    ```bash
+    curl -X POST http://localhost:3000/api/chat/openai \
+      -H "Content-Type: application/json" \
+      -d '{"messages": [{"role": "user", "content": "Hello"}]}'
+    ```
+</Accordion>
+
+<Accordion title="Performance Optimization">
+    **Use React DevTools**
+    - Install browser extension
+    - Profile component renders
+    - Identify performance bottlenecks
+    
+    **Next.js Analytics**
+    ```bash
+    # Add to next.config.js
+    module.exports = {
+      experimental: {
+        webVitalsAttribution: ['CLS', 'LCP']
+      }
+    }
+    ```
+</Accordion>
 </AccordionGroup>
 
-## 🚀 Deployment
+## Testing
 
-### Deploy to Staging
+### Unit Testing
+
+```typescript __tests__/api.test.ts
+import { POST } from '@/app/api/chat/openai/route';
+import { NextRequest } from 'next/server';
+
+describe('Chat API', () => {
+  it('handles OpenAI requests', async () => {
+    const req = new NextRequest('http://localhost:3000/api/chat/openai', {
+      method: 'POST',
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: 'Test message' }]
+      }),
+    });
+    
+    const response = await POST(req, { params: { provider: 'openai' } });
+    expect(response.status).toBe(200);
+  });
+});
+```
+
+### Integration Testing
 
 ```bash
-# Ensure on develop branch
-git checkout develop
-
-# Run tests
+# Run all tests
 npm test
 
-# Deploy
-npm run deploy:staging
+# Run in watch mode
+npm test -- --watch
+
+# Coverage report
+npm test -- --coverage
 ```
 
-### Deploy to Production
+## Deployment Preparation
 
-```bash
-# Ensure on main branch
-git checkout main
+<Steps>
+<Step title="Environment check">
+    Ensure all required environment variables are set:
+    
+    ```typescript utils/env-check.ts
+    const requiredEnvVars = [
+      'PAME_APP_ID',
+      'PAME_APP_SECRET',
+      'OPENAI_API_KEY', // if using OpenAI
+    ];
+    
+    requiredEnvVars.forEach(varName => {
+      if (!process.env[varName]) {
+        throw new Error(`Missing required env var: ${varName}`);
+      }
+    });
+    ```
+</Step>
 
-# Run full test suite
-npm run test:all
+<Step title="Build optimization">
+    ```bash
+    # Analyze bundle size
+    npm run build
+    npm run analyze
+    
+    # Check for issues
+    npm run lint
+    npm run type-check
+    ```
+</Step>
 
-# Build production assets
-npm run build
+<Step title="Security audit">
+    ```bash
+    # Check for vulnerabilities
+    npm audit
+    
+    # Fix automatically if possible
+    npm audit fix
+    ```
+</Step>
 
-# Deploy
-npm run deploy:production
-```
+<Step title="Deploy with PAME CLI">
+    ```bash
+    # Deploy to staging
+    pame deploy
+    
+    # Deploy to production
+    pame deploy --production
+    ```
+</Step>
+</Steps>
 
-## 📚 Resources
+## Best Practices
+
+<Tip>
+Follow these practices for maintainable and scalable PAME applications.
+</Tip>
+
+### Code Organization
+- ✅ Keep components small and focused
+- ✅ Use TypeScript for type safety
+- ✅ Implement proper error boundaries
+- ✅ Follow consistent naming conventions
+
+### Security
+- ✅ Validate all user inputs
+- ✅ Use environment variables for secrets
+- ✅ Implement rate limiting on APIs
+- ✅ Sanitize AI-generated content
+
+### Performance
+- ✅ Implement proper caching strategies
+- ✅ Use streaming for AI responses
+- ✅ Optimize images and assets
+- ✅ Lazy load heavy components
+
+### AI Integration
+- ✅ Handle provider failures gracefully
+- ✅ Implement retry logic
+- ✅ Monitor API usage and costs
+- ✅ Provide fallback responses
+
+## Resources
 
 <CardGroup cols={2}>
-  <Card
-    title="Architecture Guide"
-    icon="sitemap"
-    href="/architecture/overview"
-  >
-    Understand the system design
-  </Card>
-  <Card
-    title="API Documentation"
-    icon="book"
-    href="/api-reference/introduction"
-  >
-    Complete API reference
-  </Card>
-  <Card
-    title="Contributing Guide"
-    icon="code-branch"
-    href="https://github.com/ai-factory-llc/pame-ai/blob/main/CONTRIBUTING.md"
-  >
-    How to contribute
-  </Card>
-  <Card
-    title="Security Policy"
-    icon="shield"
-    href="/best-practices/security"
-  >
-    Security best practices
-  </Card>
+<Card title="PAME CLI Reference" icon="terminal" href="/developer-tools/cli">
+    Complete CLI command documentation
+</Card>
+
+<Card title="API Documentation" icon="book" href="/api-reference/introduction">
+    Platform API reference
+</Card>
+
+<Card title="Example Projects" icon="github" href="https://github.com/alecaifactory/pame.ai/tree/main/templates">
+    Browse template projects
+</Card>
+
+<Card title="Community Support" icon="discord" href="https://discord.gg/pame-ai">
+    Get help from other developers
+</Card>
 </CardGroup>
 
-## 💬 Getting Help
-
-- **Discord**: [Join our community](https://discord.gg/pame-ai)
-- **GitHub Issues**: [Report bugs](https://github.com/ai-factory-llc/pame-ai/issues)
-- **Forum**: [Ask questions](https://forum.pame.ai)
-- **Email**: [support@pame.ai](mailto:support@pame.ai)
-
----
-
 <Note>
-  Remember to never commit sensitive data like API keys or passwords. Always use environment variables.
+Ready to deploy? Check out our [deployment guide](/deployment/production) for production best practices.
 </Note> 

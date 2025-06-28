@@ -1,358 +1,477 @@
 ---
-title: Quickstart
-description: Build your first PAME.AI app in 5 minutes
+title: "Quickstart"
+description: "Get started with PAME.AI platform in under 5 minutes"
 ---
 
 <Note>
-  This guide assumes you have Node.js 16+ and npm installed. If not, [install them first](https://nodejs.org/).
+This guide assumes you have Node.js 18+ and npm installed. If not, [install them first](https://nodejs.org/).
 </Note>
 
-## 🚀 Create Your First App
+## 🚀 Install PAME CLI
 
-Let's build a simple "Smart Note Taker" app that uses PAME.AI's shared memory to remember user preferences.
-
-### Step 1: Install the PAME.AI SDK
-
-```bash
-npm install -g @pame-ai/cli
-npm install @pame-ai/sdk
-```
-
-### Step 2: Create a New App
+<Info>
+The PAME CLI is publicly available for all developers. No authentication required for installation.
+</Info>
 
 ```bash
-npx pame-ai init smart-notes
-cd smart-notes
+npm install -g @pameai/cli
 ```
 
-This creates a new PAME.AI app with the following structure:
-
-```
-smart-notes/
-├── src/
-│   ├── index.js        # Main app file
-│   ├── manifest.json   # App metadata
-│   └── permissions.js  # Permission requirements
-├── tests/
-├── package.json
-├── .env.example
-└── README.md
+Verify installation:
+```bash
+pame --version
+# Output: @pameai/cli version 1.0.1
 ```
 
-### Step 3: Configure Your App
+## 🎯 Create Your First AI App
+
+<Steps>
+<Step title="Create a new project">
+    Choose from our starter templates:
+    
+    ```bash
+    # AI Chatbot with multiple providers
+    pame create my-ai-assistant --template ai-chatbot
+    
+    # Or start with complete app template
+    pame create my-ai-app --template complete
+    ```
+    
+    <Tip>
+    The AI chatbot template includes OpenAI, Anthropic, Google, and Perplexity integrations out of the box.
+    </Tip>
+</Step>
+
+<Step title="Navigate to your project">
+    ```bash
+    cd my-ai-assistant
+    ```
+    
+    Your project structure:
+    ```
+    my-ai-assistant/
+    ├── app/
+    │   ├── api/
+    │   │   └── chat/
+    │   │       └── [provider]/
+    │   │           └── route.ts
+    │   └── page.tsx
+    ├── package.json
+    ├── tsconfig.json
+    └── README.md
+    ```
+</Step>
+
+<Step title="Install dependencies">
+    ```bash
+    npm install
+    ```
+</Step>
+
+<Step title="Configure API keys">
+    Create a `.env.local` file:
+    
+    ```env
+    # Choose your AI provider(s)
+    OPENAI_API_KEY=your_openai_key
+    ANTHROPIC_API_KEY=your_anthropic_key
+    GOOGLE_GENERATIVE_AI_API_KEY=your_google_key
+    PERPLEXITY_API_KEY=your_perplexity_key
+    ```
+    
+    <Warning>
+    Keep your API keys secure. Never commit them to version control.
+    </Warning>
+</Step>
+
+<Step title="Start development server">
+    ```bash
+    npm run dev
+    ```
+    
+    Your app is now running at `http://localhost:3000`! 🎉
+</Step>
+</Steps>
+
+## 🔐 Authentication Setup
+
+<Note>
+The PAME platform provides built-in authentication for your apps.
+</Note>
+
+### Initialize Authentication
+
+```bash
+# Set up auth for your app
+pame auth init
+
+# This creates:
+# - Auth configuration files
+# - Login/logout endpoints
+# - Session management
+```
+
+### Test Authentication Flow
+
+```bash
+# Login to PAME platform
+pame auth login
+
+# Check authentication status
+pame auth status
+```
 
 <CodeGroup>
+```typescript app/api/auth/login.ts
+import { NextApiRequest, NextApiResponse } from 'next';
 
-```json manifest.json
-{
-  "name": "Smart Notes",
-  "version": "1.0.0",
-  "description": "AI-powered note taking with memory",
-  "author": "Your Name",
-  "permissions": [
-    "memory.read",
-    "memory.write",
-    "preferences.read"
-  ],
-  "categories": ["productivity", "ai-tools"],
-  "pricing": {
-    "model": "freemium",
-    "free_tier_limits": {
-      "notes_per_month": 100
-    }
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  // Handle PAME authentication
+  const { apiKey } = req.body;
+  
+  // Validate with PAME platform
+  // ... authentication logic
+  
+  res.status(200).json({ 
+    success: true,
+    message: 'Authenticated successfully' 
+  });
 }
 ```
 
-```javascript permissions.js
-export const permissions = {
-  required: [
-    {
-      name: 'memory.read',
-      reason: 'To remember your note-taking preferences'
-    },
-    {
-      name: 'memory.write',
-      reason: 'To save your notes and patterns'
-    }
-  ],
-  optional: [
-    {
-      name: 'calendar.read',
-      reason: 'To create time-based reminders for notes'
-    }
-  ]
-};
-```
+```tsx app/page.tsx
+'use client';
 
+import { useState } from 'react';
+
+export default function Home() {
+  const [authenticated, setAuthenticated] = useState(false);
+  
+  return (
+    <div className="container">
+      <h1>Welcome to PAME.AI</h1>
+      {authenticated ? (
+        <p>You're connected to the PAME platform!</p>
+      ) : (
+        <button onClick={() => window.location.href = '/api/auth/login'}>
+          Connect to PAME
+        </button>
+      )}
+    </div>
+  );
+}
+```
 </CodeGroup>
 
-### Step 4: Build Your App Logic
-
-```javascript src/index.js
-import { PameAI } from '@pame-ai/sdk';
-
-// Initialize the SDK
-const pame = new PameAI({
-  appId: process.env.PAME_APP_ID,
-  appSecret: process.env.PAME_APP_SECRET
-});
-
-// Create a note with user context
-async function createSmartNote(content) {
-  try {
-    // Get user preferences from shared memory
-    const preferences = await pame.memory.get('note_preferences');
-    const writingStyle = await pame.memory.get('writing_style');
-    
-    // Enhance the note based on user context
-    const enhancedNote = await pame.ai.enhance({
-      content,
-      context: {
-        preferences,
-        style: writingStyle,
-        timestamp: new Date()
-      }
-    });
-    
-    // Save to user's memory
-    await pame.memory.store('notes', {
-      id: Date.now(),
-      original: content,
-      enhanced: enhancedNote,
-      tags: await pame.ai.generateTags(content)
-    });
-    
-    return enhancedNote;
-  } catch (error) {
-    console.error('Error creating note:', error);
-    throw error;
-  }
-}
-
-// Search notes using AI
-async function searchNotes(query) {
-  const allNotes = await pame.memory.get('notes');
-  
-  return pame.ai.semanticSearch({
-    query,
-    documents: allNotes,
-    limit: 10
-  });
-}
-
-// Export for use in your app
-export { createSmartNote, searchNotes };
-```
-
-### Step 5: Test Locally
-
-First, create a `.env` file from the example:
-
-```bash
-cp .env.example .env
-```
-
-Add your development credentials:
-
-```env .env
-PAME_APP_ID=dev_your_app_id
-PAME_APP_SECRET=dev_your_app_secret
-PAME_API_URL=http://localhost:3000
-```
-
-Run the development server:
-
-```bash
-npm run dev
-```
-
-Your app is now running at `http://localhost:8080`!
-
-### Step 6: Test with the PAME.AI Simulator
-
-The PAME.AI CLI includes a simulator for testing:
-
-```bash
-npx pame-ai simulate
-```
-
-This opens a test environment where you can:
-- Grant/revoke permissions
-- Populate test memory data
-- Simulate different user contexts
-- Test payment flows
-
-## 🧪 Writing Tests
-
-<CodeGroup>
-
-```javascript tests/smart-notes.test.js
-import { createSmartNote, searchNotes } from '../src/index';
-import { PameAI } from '@pame-ai/sdk';
-
-jest.mock('@pame-ai/sdk');
-
-describe('Smart Notes App', () => {
-  beforeEach(() => {
-    PameAI.mockClear();
-  });
-  
-  test('creates enhanced note with user context', async () => {
-    // Mock user preferences
-    PameAI.prototype.memory.get.mockResolvedValueOnce({
-      defaultTags: ['work', 'ideas'],
-      autoSummarize: true
-    });
-    
-    const note = await createSmartNote('Meeting notes from today');
-    
-    expect(note).toHaveProperty('enhanced');
-    expect(PameAI.prototype.memory.store).toHaveBeenCalled();
-  });
-  
-  test('searches notes semantically', async () => {
-    const mockNotes = [
-      { content: 'Project planning meeting' },
-      { content: 'Grocery shopping list' }
-    ];
-    
-    PameAI.prototype.memory.get.mockResolvedValueOnce(mockNotes);
-    
-    const results = await searchNotes('meeting');
-    
-    expect(results.length).toBeGreaterThan(0);
-    expect(results[0].content).toContain('meeting');
-  });
-});
-```
-
-```bash package.json scripts
-{
-  "scripts": {
-    "dev": "pame-ai dev",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "build": "pame-ai build",
-    "deploy": "pame-ai deploy"
-  }
-}
-```
-
-</CodeGroup>
-
-## 🚢 Deploy to PAME.AI Marketplace
-
-### Step 1: Build for Production
-
-```bash
-npm run build
-```
-
-### Step 2: Submit for Review
-
-```bash
-npx pame-ai submit
-```
-
-This will:
-1. Run security checks
-2. Validate permissions
-3. Test your app
-4. Submit to the PAME.AI review team
-
-### Step 3: Monitor Your App
-
-Once approved, monitor your app:
-
-```bash
-npx pame-ai dashboard
-```
-
-## 📚 Next Steps
-
-<CardGroup cols={2}>
-  <Card
-    title="API Reference"
-    icon="book"
-    href="/api-reference/introduction"
-  >
-    Explore all available APIs
-  </Card>
-  <Card
-    title="Best Practices"
-    icon="star"
-    href="/best-practices/security"
-  >
-    Learn security and performance tips
-  </Card>
-  <Card
-    title="Example Apps"
-    icon="code"
-    href="https://github.com/ai-factory-llc/pame-ai-examples"
-  >
-    See more complex examples
-  </Card>
-  <Card
-    title="Developer Forum"
-    icon="comments"
-    href="https://forum.pame.ai"
-  >
-    Get help from the community
-  </Card>
-</CardGroup>
-
-## 🎯 Common Use Cases
+## 🚀 Deploy Your App
 
 <Tabs>
-  <Tab title="Travel Assistant">
-    ```javascript
-    // Access user's travel preferences
-    const travelPrefs = await pame.memory.get('travel_preferences');
-    const companions = await pame.memory.get('travel_companions');
+<Tab title="Quick Deploy">
+    ```bash
+    # Deploy to PAME platform
+    pame deploy
     
-    // Book flights with context
-    const flights = await searchFlights({
-      ...searchParams,
-      seatPreference: travelPrefs.seatPreference,
-      travelers: companions
-    });
+    # This will:
+    # 1. Build your application
+    # 2. Upload to PAME infrastructure
+    # 3. Configure DNS and SSL
+    # 4. Provide your app URL
     ```
-  </Tab>
-  <Tab title="Reading Assistant">
-    ```javascript
-    // Remember reading history and preferences
-    const readingHistory = await pame.memory.get('books_read');
-    const genres = await pame.memory.get('favorite_genres');
+</Tab>
+
+<Tab title="Deploy with Config">
+    ```bash
+    # Deploy with custom configuration
+    pame deploy --name "My AI Assistant" \
+                --subdomain "my-assistant" \
+                --region "us-central1"
+    ```
+</Tab>
+
+<Tab title="Deploy to Vercel">
+    ```bash
+    # If you prefer Vercel deployment
+    pame deploy --provider vercel
     
-    // Generate personalized recommendations
-    const recommendations = await pame.ai.recommend({
-      based_on: readingHistory,
-      preferences: genres,
-      limit: 10
-    });
+    # Or use Vercel CLI directly
+    vercel
     ```
-  </Tab>
-  <Tab title="Health Tracker">
-    ```javascript
-    // Access health data (with permission)
-    const dietPrefs = await pame.memory.get('dietary_restrictions');
-    const goals = await pame.memory.get('health_goals');
-    
-    // Create personalized meal plans
-    const mealPlan = await generateMealPlan({
-      restrictions: dietPrefs,
-      goals: goals,
-      calories: 2000
-    });
-    ```
-  </Tab>
+</Tab>
 </Tabs>
 
-<Warning>
-  Always request only the permissions you need. Users are more likely to trust and install apps with minimal permission requirements.
-</Warning>
+## 📊 Available Templates
 
----
+<CardGroup cols={2}>
+<Card title="AI Chatbot" icon="message" href="#ai-chatbot">
+    Multi-provider AI chat interface with streaming support
+</Card>
 
-Need help? Join our [Discord](https://discord.gg/pame-ai) or check the [forums](https://forum.pame.ai). 
+<Card title="Complete App" icon="rocket" href="#complete-app">
+    Full-stack Next.js app with auth and API routes
+</Card>
+
+<Card title="Auth Webapp" icon="lock" href="#auth-webapp">
+    Authentication-focused template with session management
+</Card>
+
+<Card title="Landing Page" icon="globe" href="#landing-page">
+    Marketing site template with PAME integration
+</Card>
+</CardGroup>
+
+### AI Chatbot Template
+
+Perfect for building conversational AI experiences:
+
+- ✅ Multiple AI provider support (OpenAI, Anthropic, Google, Perplexity)
+- ✅ Streaming responses
+- ✅ Conversation history
+- ✅ Rate limiting
+- ✅ Error handling
+
+```bash
+pame create my-chatbot --template ai-chatbot
+```
+
+### Complete App Template
+
+Full-featured application scaffold:
+
+- ✅ Next.js 14 with App Router
+- ✅ TypeScript configured
+- ✅ PAME authentication integrated
+- ✅ API route examples
+- ✅ Responsive UI components
+
+```bash
+pame create my-app --template complete
+```
+
+## 🛠️ CLI Commands Reference
+
+<AccordionGroup>
+<Accordion title="pame create">
+    Create a new PAME application
+    
+    ```bash
+    pame create <app-name> [options]
+    
+    Options:
+      --template, -t    Choose template (ai-chatbot, complete, auth-webapp)
+      --typescript     Use TypeScript (default: true)
+      --install        Auto-install dependencies (default: true)
+    ```
+</Accordion>
+
+<Accordion title="pame auth">
+    Manage authentication
+    
+    ```bash
+    pame auth <command>
+    
+    Commands:
+      login     Login to PAME platform
+      logout    Logout from PAME platform
+      status    Check authentication status
+      init      Initialize auth in current project
+    ```
+</Accordion>
+
+<Accordion title="pame deploy">
+    Deploy your application
+    
+    ```bash
+    pame deploy [options]
+    
+    Options:
+      --name           App display name
+      --subdomain      Custom subdomain
+      --provider       Deployment provider (pame, vercel)
+      --production     Deploy to production (default: false)
+    ```
+</Accordion>
+
+<Accordion title="pame config">
+    Manage configuration
+    
+    ```bash
+    pame config <command>
+    
+    Commands:
+      set <key> <value>    Set configuration value
+      get <key>            Get configuration value
+      list                 List all configuration
+    ```
+</Accordion>
+</AccordionGroup>
+
+## 🎯 Next Steps
+
+<Steps>
+<Step title="Explore API Integration">
+    Learn how to integrate with PAME platform APIs:
+    
+    - User preferences and memory
+    - Permission management
+    - Payment processing
+    - Analytics tracking
+    
+    [View API Reference →](/api-reference/introduction)
+</Step>
+
+<Step title="Add AI Capabilities">
+    Enhance your app with AI features:
+    
+    - Natural language processing
+    - Semantic search
+    - Content generation
+    - Multi-modal AI support
+    
+    [AI Integration Guide →](/channels/introduction)
+</Step>
+
+<Step title="Deploy to Production">
+    Ready to go live? Follow our deployment guide:
+    
+    - Production best practices
+    - Performance optimization
+    - Security configuration
+    - Monitoring setup
+    
+    [Deployment Guide →](/deployment/production)
+</Step>
+</Steps>
+
+## 💡 Example: Building a Smart Note App
+
+Here's a quick example of building an AI-powered note-taking app:
+
+<CodeGroup>
+```bash Terminal
+# Create the app
+pame create smart-notes --template ai-chatbot
+
+# Navigate to project
+cd smart-notes
+
+# Install additional dependencies
+npm install @vercel/kv uuid
+```
+
+```typescript app/api/notes/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { openai } from '@/lib/openai';
+
+export async function POST(req: NextRequest) {
+  const { content, action } = await req.json();
+  
+  if (action === 'enhance') {
+    // Use AI to enhance the note
+    const enhanced = await openai.chat.completions.create({
+      model: 'gpt-4',
+      messages: [
+        {
+          role: 'system',
+          content: 'Enhance this note with better formatting and structure.'
+        },
+        {
+          role: 'user',
+          content
+        }
+      ]
+    });
+    
+    return NextResponse.json({
+      original: content,
+      enhanced: enhanced.choices[0].message.content
+    });
+  }
+  
+  // Save note logic here
+  return NextResponse.json({ success: true });
+}
+```
+
+```typescript app/page.tsx
+'use client';
+
+import { useState } from 'react';
+
+export default function SmartNotes() {
+  const [note, setNote] = useState('');
+  const [enhanced, setEnhanced] = useState('');
+  
+  const enhanceNote = async () => {
+    const res = await fetch('/api/notes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        content: note, 
+        action: 'enhance' 
+      })
+    });
+    
+    const data = await res.json();
+    setEnhanced(data.enhanced);
+  };
+  
+  return (
+    <div className="max-w-4xl mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6">Smart Notes</h1>
+      
+      <textarea
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+        placeholder="Write your note..."
+        className="w-full h-32 p-4 border rounded"
+      />
+      
+      <button
+        onClick={enhanceNote}
+        className="mt-4 px-6 py-2 bg-blue-500 text-white rounded"
+      >
+        Enhance with AI
+      </button>
+      
+      {enhanced && (
+        <div className="mt-6 p-4 bg-gray-100 rounded">
+          <h3 className="font-semibold mb-2">Enhanced Note:</h3>
+          <p>{enhanced}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+</CodeGroup>
+
+## 🤝 Get Help
+
+<CardGroup cols={2}>
+<Card title="Documentation" icon="book" href="/introduction">
+    Browse the complete documentation
+</Card>
+
+<Card title="GitHub" icon="github" href="https://github.com/alecaifactory/pame.ai">
+    View source code and examples
+</Card>
+
+<Card title="Community" icon="users" href="https://discord.gg/pame-ai">
+    Join our Discord community
+</Card>
+
+<Card title="Support" icon="headset" href="mailto:support@pame.ai">
+    Contact our support team
+</Card>
+</CardGroup>
+
+<Info>
+Ready to build something amazing? Start with `pame create` and let's revolutionize AI applications together! 🚀
+</Info> 
